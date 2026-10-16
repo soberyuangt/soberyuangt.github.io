@@ -1,0 +1,2073 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#8c1119" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="底价计算器" />
+<link rel="apple-touch-icon" sizes="180x180" href="app-icon-180.png" />
+<link rel="icon" type="image/png" sizes="144x144" href="app-icon-144.png" />
+<link rel="shortcut icon" href="app-icon-144.png" />
+<meta name="format-detection" content="telephone=no" />
+<title>白酒底价计算器</title>
+<style>
+  :root{
+    --bg:#f2f3f6; --card:#ffffff; --ink:#1b1c1f; --ink2:#5b6169; --ink3:#98a0ab;
+    --line:#eceef2; --line2:#e3e6ec; --soft:#fafbfd;
+    --brand:#b8121f; --brand-d:#8c1119; --gold:#c8952f; --gold-l:#e6bd63;
+    --ok:#0f9d58; --okbg:#e9f7ef; --warn:#c77700; --warnbg:#fff5e5; --bad:#d93025; --badbg:#fdecec;
+    --r:16px; --shadow:0 2px 10px rgba(15,23,42,.06);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink); font-size:15px; line-height:1.5;
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    padding-bottom:calc(74px + env(safe-area-inset-bottom));
+    -webkit-font-smoothing:antialiased;
+  }
+  /* ---------------- 顶部 ---------------- */
+  .topbar{
+    position:sticky; top:0; z-index:30;
+    background:linear-gradient(135deg,#8c1119 0%,#b8121f 55%,#7d0d15 100%);
+    color:#fff; padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;
+    box-shadow:0 6px 18px rgba(140,17,25,.22);
+  }
+  .topbar-in{display:flex;align-items:center;gap:10px;max-width:680px;margin:0 auto}
+  .logo{
+    width:34px;height:34px;border-radius:10px;flex:0 0 34px;
+    background:linear-gradient(150deg,#f0d089,#c8952f); color:#5a3d05;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 2px 6px rgba(0,0,0,.18);
+  }
+  .topbar h1{margin:0;font-size:17px;font-weight:700;letter-spacing:.5px}
+  .topbar p{margin:1px 0 0;font-size:11.5px;color:rgba(255,255,255,.78)}
+  .topbar .spacer{flex:1}
+  /* ---------------- 视图 ---------------- */
+  main{max-width:680px;margin:0 auto;padding:12px 12px 0}
+  .view{display:none}
+  .view.on{display:block;animation:fadein .2s ease both}
+  @keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  /* ---------------- 卡片 ---------------- */
+  .card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+  .card-hd{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .card-hd h2{margin:0;font-size:15px;font-weight:650;letter-spacing:.2px}
+  .card-hd .dot{width:8px;height:8px;border-radius:50%;background:var(--brand);flex:0 0 8px}
+  .card-hd .dot.gold{background:linear-gradient(150deg,var(--gold-l),var(--gold))}
+  .card-hd .dot.grey{background:#c3c9d4}
+  .card-hd .note{margin-left:auto;font-size:11px;color:var(--ink3);font-weight:400}
+  .card-bd{padding:10px 12px 12px}
+  .card-bd.tight{padding:4px 12px 12px}
+  /* ---------------- 表单元素 ---------------- */
+  input,textarea,select{font-family:inherit;font-size:16px;color:inherit}
+  input[type=text],input[type=number],input[type=search],textarea,select{
+    width:100%;border:1px solid var(--line2);background:var(--soft);border-radius:12px;
+    padding:10px 11px;outline:none;min-height:44px;transition:border-color .15s,box-shadow .15s,background .15s;
+  }
+  input:focus,textarea:focus,select:focus{border-color:var(--brand);background:#fff;box-shadow:0 0 0 3px rgba(184,18,31,.08)}
+  input:disabled{opacity:.55}
+  textarea{min-height:120px;resize:vertical;line-height:1.6;font-size:14px}
+  ::placeholder{color:#b3b9c2}
+  .field{margin-bottom:10px}
+  .field label{display:block;font-size:12.5px;color:var(--ink2);margin:0 0 5px 2px;font-weight:500}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .hint{margin:8px 2px 0;font-size:11.5px;color:var(--ink3);line-height:1.6}
+  /* ---------------- 按钮 ---------------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    border:none;border-radius:12px;padding:0 14px;height:44px;font-family:inherit;
+    font-size:15px;font-weight:600;background:#f0f1f5;color:#33363c;cursor:pointer;transition:transform .08s,opacity .15s;
+  }
+  .btn:active{transform:scale(.975)}
+  .btn.primary{background:linear-gradient(135deg,#c31524,#8c1119);color:#fff;box-shadow:0 4px 12px rgba(184,18,31,.26)}
+  .btn.gold{background:linear-gradient(135deg,var(--gold-l),var(--gold));color:#4a3306;box-shadow:0 4px 12px rgba(200,149,47,.25)}
+  .btn.ghost{background:#fff;border:1.5px solid var(--line2);color:var(--ink2)}
+  .btn.danger{background:var(--badbg);color:#b3261e}
+  .btn.block{width:100%}
+  .btn.sm{height:34px;font-size:13px;border-radius:10px;padding:0 11px}
+  .btn.xs{height:28px;font-size:12px;border-radius:8px;padding:0 8px;font-weight:500}
+  .btn:disabled{opacity:.5}
+  .btnrow{display:flex;gap:8px}
+  .btnrow .btn{flex:1}
+  .dash{border:1.5px dashed #d5d9e2;background:#fff;color:var(--brand);font-weight:600;height:42px;border-radius:12px;font-size:14px}
+  .dash:active{background:#fff8f8}
+  /* ---------------- 明细行 ---------------- */
+  .rowline{
+    display:grid;grid-template-columns:minmax(0,1fr) auto auto 30px;gap:7px;align-items:center;
+    padding:9px 0;border-bottom:1px dashed var(--line);
+  }
+  .rowline:last-of-type{border-bottom:none}
+  .pick{
+    display:block;width:100%;min-width:0;text-align:left;border:1px solid var(--line2);background:var(--soft);
+    border-radius:12px;padding:7px 10px;min-height:46px;font-family:inherit;color:inherit;cursor:pointer;
+  }
+  .pick:active{background:#f2f4f8}
+  .pick .nm{font-size:14px;font-weight:640;display:block;line-height:1.25;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pick .sub{font-size:11px;color:var(--ink3);display:block;margin-top:2px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pick.empty{border-style:dashed}
+  .pick.empty .nm{color:var(--ink3);font-weight:500}
+  .qtygrp{display:flex;align-items:center;gap:3px}
+  .qty{position:relative;width:64px;flex:0 0 64px}
+  .qty input{padding:10px 19px 10px 5px;text-align:center;font-variant-numeric:tabular-nums;font-weight:600}
+  .qty .unit{position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--ink3);pointer-events:none}
+  .spin{display:flex;flex-direction:column;justify-content:space-between;gap:2px;height:50px;flex:0 0 32px}
+  .spin button{
+    flex:1 1 0;min-height:0;width:32px;padding:0;border:1.5px solid var(--line2);background:#fff;color:var(--brand);
+    border-radius:9px;font-family:inherit;font-size:10px;line-height:1;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;touch-action:manipulation;transition:background .12s,transform .08s;
+  }
+  .spin button:active{background:#fff1f1;border-color:#e8b4b4;transform:scale(.94)}
+  .spin button:disabled{opacity:.35}
+  .amt{font-size:13px;font-weight:650;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink2);word-break:break-all}
+  .amt.p0{color:var(--ink3);font-weight:500}
+  .del{width:30px;height:30px;border-radius:50%;border:none;background:var(--badbg);color:#c62828;
+    font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+  .del:active{transform:scale(.92)}
+  .total{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+    padding:11px 2px 2px;margin-top:8px;border-top:1px solid var(--line);font-size:13px;color:var(--ink2)}
+  .total b{font-size:18px;color:var(--brand);font-variant-numeric:tabular-nums;letter-spacing:.2px}
+  .total.gold b{color:#a9761b}
+  /* ---------------- 空状态 ---------------- */
+  .empty{text-align:center;color:var(--ink3);font-size:13px;padding:20px 10px;line-height:1.7}
+  .empty .em{font-size:26px;display:block;margin-bottom:6px;opacity:.55}
+  /* ---------------- 底价结果 ---------------- */
+  .res{border:1px solid var(--line);border-radius:14px;padding:11px 12px;margin-bottom:9px;background:#fff}
+  .res:last-child{margin-bottom:0}
+  .res-hd{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px}
+  .res-hd .rn{font-size:14.5px;font-weight:680;flex:1;min-width:0;word-break:break-all}
+  .res-hd .rs{font-size:11px;color:var(--ink3);margin-top:3px;font-weight:400}
+  .res-price{display:flex;align-items:baseline;gap:6px;background:linear-gradient(135deg,#fff7f7,#fffaf2);
+    border:1px solid #f6e3e3;border-radius:11px;padding:8px 10px;margin-bottom:8px}
+  .res-price .lb{font-size:11.5px;color:var(--ink2)}
+  .res-price b{font-size:21px;color:var(--brand);font-variant-numeric:tabular-nums;font-weight:750;letter-spacing:.3px}
+  .res-price .per{font-size:11.5px;color:var(--ink3)}
+  .res-price .tag{margin-left:auto;font-size:11px;font-weight:650;color:#a9761b;background:#fdf6e6;
+    border-radius:999px;padding:2px 8px;white-space:nowrap}
+  .kv{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px}
+  .kv>div{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;border-bottom:1px dotted #eef0f4;padding:3px 0}
+  .kv i{font-style:normal;color:var(--ink3)}
+  .kv b{font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+  .exact{margin-top:7px;font-size:11px;color:var(--ink3);word-break:break-all}
+  /* ---------------- 验算 ---------------- */
+  .verify{padding:2px}
+  .vline{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:8px 2px;border-bottom:1px dotted #eef0f4;font-size:13.5px}
+  .vline:last-of-type{border-bottom:none}
+  .vline i{font-style:normal;color:var(--ink2)}
+  .vline b{font-variant-numeric:tabular-nums;font-weight:650;font-size:15px}
+  .vline.big b{font-size:19px;color:var(--brand)}
+  .stroke{text-decoration:line-through;color:var(--ink3)}
+  .status{margin-top:10px;border-radius:12px;padding:11px 12px;font-size:13.5px;line-height:1.55;display:flex;gap:9px;align-items:flex-start}
+  .status .ico{font-size:17px;line-height:1.2}
+  .status.ok{background:var(--okbg);color:#0b6b3d}
+  .status.warn{background:var(--warnbg);color:#8a5300}
+  .status.bad{background:var(--badbg);color:#a5201a}
+  .status b{font-weight:700}
+  /* ---------------- 分段控件 ---------------- */
+  .seg{display:inline-flex;background:#f0f1f5;border-radius:10px;padding:2px;margin-left:auto}
+  .seg button{border:none;background:none;font-family:inherit;font-size:12px;font-weight:600;color:var(--ink2);
+    padding:5px 9px;border-radius:8px;cursor:pointer}
+  .seg button.on{background:#fff;color:var(--brand);box-shadow:0 1px 3px rgba(15,23,42,.12)}
+  /* ---------------- 开关 ---------------- */
+  .switch{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--ink2);margin:2px 2px 10px;cursor:pointer;user-select:none}
+  .switch input{appearance:none;-webkit-appearance:none;width:44px;height:26px;border-radius:999px;background:#d8dce4;
+    position:relative;margin:0;flex:0 0 44px;transition:background .18s;cursor:pointer}
+  .switch input::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;
+    box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .18s}
+  .switch input:checked{background:var(--brand)}
+  .switch input:checked::after{transform:translateX(18px)}
+  .money{position:relative}
+  .money .sym{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink3);font-size:15px;pointer-events:none}
+  .money input{padding-left:30px;font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--brand)}
+  /* ---------------- 算式计算器 ---------------- */
+  .mini-label{display:block;font-size:12.5px;color:var(--ink2);margin:14px 0 6px 2px;font-weight:500}
+  .exprrow{display:flex;gap:8px;align-items:stretch}
+  .exprrow input{flex:1;min-width:0;font-size:15px}
+  .exprrow .btn{flex:0 0 auto;padding:0 14px;white-space:nowrap}
+  .keys{display:flex;gap:5px;margin-top:8px}
+  .kbtn{
+    flex:1 1 0;min-width:0;height:31px;border:1px solid var(--line2);background:#fff;border-radius:8px;
+    font-family:inherit;font-size:13.5px;font-weight:600;color:var(--ink2);cursor:pointer;padding:0;
+    touch-action:manipulation;transition:background .12s,transform .08s;
+  }
+  .kbtn:active{background:#f4f6fa;transform:scale(.94)}
+  .kbtn.del-k{color:var(--bad);font-size:13px}
+  .exprres{color:var(--brand);font-weight:700;font-size:14px}
+  .exprbad{color:var(--bad);font-weight:600}
+  /* ---------------- 列表项 ---------------- */
+  .item{display:flex;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+  .item:last-child{border-bottom:none}
+  .item .main{flex:1;min-width:0}
+  .item .t1{font-size:14.5px;font-weight:640;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .item .t2{font-size:11.5px;color:var(--ink3);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .item .acts{display:flex;gap:6px;flex:0 0 auto}
+  .chip{display:inline-block;font-size:10.5px;color:#8a6a1f;background:#fdf6e6;border-radius:5px;
+    padding:1px 5px;margin-left:4px;font-weight:600;vertical-align:middle}
+  .chip.b{color:#2a4d8f;background:#eef3fd}
+  .chip.g{color:#0b6b3d;background:var(--okbg)}
+  /* 使用说明入口 + 引导 */
+  .gbtn{width:24px;height:24px;flex:0 0 24px;border-radius:50%;border:none;background:#f0f1f5;color:var(--ink2);
+    font-size:14px;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center;
+    margin-left:8px;cursor:pointer;padding:0;font-family:inherit}
+  .gbtn:active{background:#e6e8ee}
+  .gstep{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid #f4f5f8}
+  .gstep:last-child{border-bottom:none}
+  .gstep .num{width:26px;height:26px;flex:0 0 26px;border-radius:50%;font-size:14px;font-weight:700;
+    background:linear-gradient(135deg,var(--gold-l),var(--gold));color:#4a3306;
+    display:flex;align-items:center;justify-content:center}
+  .gstep .st{font-size:15px;font-weight:650;margin-bottom:3px}
+  .gstep .sd{font-size:13px;color:var(--ink2);line-height:1.65}
+  .gstep .sd b{color:var(--brand);font-weight:600}
+  /* 分享文案卡片 */
+  .cpcard{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+  .cpcard:last-child{margin-bottom:0}
+  .cphd{font-size:12.5px;font-weight:700;color:var(--brand);margin-bottom:6px}
+  .cptx{font-size:13px;color:var(--ink2);line-height:1.65;background:#fafbfd;border-radius:10px;padding:10px;margin-bottom:10px;word-break:break-all}
+  .chip.r{color:#a5201a;background:var(--badbg)}
+  .imgwrap{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#eef0f4;padding:6px}
+  .imgwrap img{display:block;width:100%;border-radius:10px;background:#fff}
+  .summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+  .kpi{background:linear-gradient(160deg,#fff,#fbfcfe);border:1px solid var(--line);border-radius:12px;padding:8px 9px;text-align:center}
+  .kpi i{font-style:normal;display:block;font-size:10.5px;color:var(--ink3);margin-bottom:3px}
+  .kpi b{font-size:14.5px;font-variant-numeric:tabular-nums;color:var(--ink);letter-spacing:.2px}
+  .kpi b.red{color:var(--brand)}
+  /* ---------------- 底部导航 ---------------- */
+  .tabbar{
+    position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;
+    background:rgba(255,255,255,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-top:1px solid #e9ebf0;padding:6px 0 calc(6px + env(safe-area-inset-bottom));
+    box-shadow:0 -2px 14px rgba(15,23,42,.05);
+  }
+  .tabbar button{
+    flex:1;border:none;background:none;font-family:inherit;display:flex;flex-direction:column;
+    align-items:center;gap:2px;color:var(--ink3);font-size:11px;padding:2px 0;cursor:pointer;font-weight:600;
+  }
+  .tabbar button.on{color:var(--brand)}
+  .tabbar svg{width:22px;height:22px;display:block}
+  .tabbar .badge{position:absolute;transform:translate(16px,-6px);background:var(--brand);color:#fff;
+    font-size:9.5px;border-radius:999px;padding:0 4px;min-width:15px;line-height:15px;font-weight:700}
+  /* ---------------- 弹层 ---------------- */
+  .mask{position:fixed;inset:0;background:rgba(15,20,30,.45);z-index:60;display:flex;align-items:flex-end;
+    animation:mfade .18s ease both}
+  @keyframes mfade{from{opacity:0}to{opacity:1}}
+  .sheet{background:#fff;width:100%;max-height:88vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;
+    animation:mup .24s cubic-bezier(.2,.9,.3,1) both;padding-bottom:env(safe-area-inset-bottom);max-width:680px;margin:0 auto}
+  @keyframes mup{from{transform:translateY(28px);opacity:.7}to{transform:none;opacity:1}}
+  .sheet-hd{display:flex;align-items:center;gap:10px;padding:15px 16px 11px;border-bottom:1px solid var(--line)}
+  .sheet-hd h3{margin:0;font-size:16px;font-weight:680;flex:1}
+  .sheet-x{border:none;background:#f0f1f5;width:30px;height:30px;border-radius:50%;font-size:16px;color:var(--ink2);
+    line-height:1;cursor:pointer}
+  .sheet-bd{padding:13px 16px;overflow:auto;-webkit-overflow-scrolling:touch;flex:1}
+  .sheet-ft{padding:11px 16px 14px;border-top:1px solid var(--line);display:flex;gap:8px}
+  .sheet-ft .btn{flex:1;min-width:0}
+  /* 4 个并排的按钮（对账单弹层）：窄屏上字号随屏宽收缩，内边距收紧，禁止换行。
+     375px 屏每个按钮约 80px，「复制文案」在 15px 字号 + 28px 内边距下需要 88px 会换行。 */
+  .sheet-ft .btn.ft4{
+    padding:0 6px;font-size:clamp(12px,3.6vw,14px);white-space:nowrap;
+    letter-spacing:-.2px;gap:0;
+  }
+  .mask.center{align-items:center;justify-content:center;padding:22px}
+  .dlg{background:#fff;border-radius:18px;width:100%;max-width:380px;padding:20px 18px 16px;
+    animation:mup .2s cubic-bezier(.2,.9,.3,1) both}
+  .dlg h3{margin:0 0 8px;font-size:16.5px;font-weight:700}
+  .dlg p{margin:0 0 14px;font-size:13.5px;color:var(--ink2);line-height:1.65}
+  .dlg .btnrow{margin-top:4px}
+  .plist{display:flex;flex-direction:column}
+  .pitem{display:flex;align-items:center;gap:10px;padding:12px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+  .pitem:active{background:#fafbfd}
+  .pitem .main{flex:1;min-width:0}
+  .pitem .t1{font-size:14.5px;font-weight:640}
+  .pitem .t2{font-size:11.5px;color:var(--ink3);margin-top:3px}
+  .pitem .pr{font-size:15px;font-weight:700;color:var(--brand);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .pitem .pr small{font-size:10.5px;color:var(--ink3);font-weight:500}
+  /* ---------------- toast ---------------- */
+  .toast{position:fixed;left:50%;bottom:calc(94px + env(safe-area-inset-bottom));transform:translate(-50%,10px);
+    background:rgba(28,30,36,.94);color:#fff;font-size:13.5px;border-radius:12px;padding:10px 16px;z-index:90;
+    opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:80vw;text-align:center;line-height:1.5}
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+  @media (max-width:359px){
+    .rowline{grid-template-columns:minmax(0,1fr) auto auto 28px;gap:5px}
+    .qty{width:56px;flex:0 0 56px}
+    .spin{flex:0 0 28px;height:48px}
+    .spin button{width:28px;font-size:9px}
+    .amt{font-size:12px}
+    .res-price b{font-size:19px}
+    .grid3{grid-template-columns:1fr 1fr}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="logo">价</div>
+    <div>
+      <h1 id="pageTitle">底价计算</h1>
+      <p id="pageSub">终端拿货 · 赠送 · 产品底价 · 自动验算</p>
+    </div>
+    <div class="spacer"></div>
+  </div>
+</header>
+
+<main>
+  <!-- ============ 计算页 ============ -->
+  <section class="view on" id="view-calc">
+    <div class="card">
+      <div class="card-hd"><span class="dot grey"></span><h2>客户信息</h2>
+        <span class="note">填入客户名，便于按客户查记录</span>
+        <button type="button" class="gbtn" data-act="guide" aria-label="使用说明">?</button></div>
+      <div class="card-bd">
+        <div class="grid2">
+          <div class="field" style="margin-bottom:0"><label>客户名称</label>
+            <input id="custName" type="text" placeholder="如：张老板 / 某某烟酒店" /></div>
+          <div class="field" style="margin-bottom:0"><label>备注</label>
+            <input id="noteInput" type="text" placeholder="如：3月政策、含返利" /></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">
+        <span class="dot"></span><h2>终端拿货产品</h2>
+        <span class="note">开票价 × 规格 × 箱数</span>
+      </div>
+      <div class="card-bd">
+        <div id="purchaseRows"></div>
+        <button class="btn dash block" data-act="addrow" data-kind="p" style="margin-top:8px">＋ 添加拿货产品</button>
+        <div class="total"><span>拿货合计金额</span><b id="purchaseTotal">¥0.00</b></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">
+        <span class="dot gold"></span><h2>赠送终端产品</h2>
+        <span class="note">开票价 × 瓶数</span>
+      </div>
+      <div class="card-bd">
+        <div id="giftRows"></div>
+        <button class="btn dash block" data-act="addrow" data-kind="g" style="margin-top:8px">＋ 添加赠送产品</button>
+        <div class="total gold"><span>合计赠送金额</span><b id="giftTotal">¥0.00</b></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><span class="dot"></span><h2>客户付款金额</h2></div>
+      <div class="card-bd">
+        <label class="switch"><input type="checkbox" id="payCustom"><span>手动指定付款金额（默认＝拿货合计）</span></label>
+        <div class="money">
+          <span class="sym">¥</span>
+          <input id="payInput" inputmode="decimal" placeholder="0.00" disabled />
+        </div>
+        <p class="hint" id="payHint">客户实付金额自动取「拿货合计金额」。如有抹零、返利、政策扣减，可打开上方开关手动填写。</p>
+
+        <div id="exprWrap" style="display:none">
+          <label class="mini-label">算式计算（可选）</label>
+          <div class="exprrow">
+            <input id="exprInput" type="text" inputmode="decimal" enterkeyhint="done" placeholder="如 600×97%，符号点下方按键" />
+            <button class="btn primary" data-act="evalExpr">＝ 计算</button>
+          </div>
+          <div class="keys">
+            <button type="button" class="kbtn" data-k="＋">＋</button>
+            <button type="button" class="kbtn" data-k="−">−</button>
+            <button type="button" class="kbtn" data-k="×">×</button>
+            <button type="button" class="kbtn" data-k="÷">÷</button>
+            <button type="button" class="kbtn" data-k="(">(</button>
+            <button type="button" class="kbtn" data-k=")">)</button>
+            <button type="button" class="kbtn" data-k="%">%</button>
+            <button type="button" class="kbtn del-k" data-k="back">⌫</button>
+          </div>
+          <p class="hint" id="exprResult">支持 <b>+ − × ÷ ( )</b> 和百分号 <b>%</b>（97% 即 0.97）。点「＝ 计算」把结果填进上方的付款金额。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">
+        <span class="dot gold"></span><h2>产品底价</h2>
+        <div class="seg" id="precSeg">
+          <button data-prec="2" class="on">2位</button>
+          <button data-prec="3">3位</button>
+          <button data-prec="4">4位</button>
+        </div>
+      </div>
+      <div class="card-bd tight" id="resultBox"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><span class="dot grey"></span><h2>验算</h2><span class="note">总数量 × 底价 ＝ 客户付款</span></div>
+      <div class="card-bd" id="verifyBox"></div>
+    </div>
+
+    <div class="btnrow" style="margin-bottom:8px">
+      <button class="btn primary" data-act="save">保存记录</button>
+      <button class="btn gold" data-act="image">生成对账单长图</button>
+    </div>
+    <div class="btnrow" style="margin-bottom:16px">
+      <button class="btn gold" data-act="sharecopy">分享文案</button>
+      <button class="btn ghost" data-act="copy">复制文本</button>
+      <button class="btn danger" data-act="clear">清空</button>
+    </div>
+  </section>
+
+  <!-- ============ 产品库页 ============ -->
+  <section class="view" id="view-lib">
+    <div class="card">
+      <div class="card-hd"><span class="dot"></span><h2>产品库</h2>
+        <span class="note" id="libCount">共 0 个产品</span></div>
+      <div class="card-bd">
+        <input type="search" id="libSearch" placeholder="搜索产品名称 / 度数 / 容量" />
+        <div class="btnrow" style="margin-top:10px">
+          <button class="btn primary" data-act="newProd">＋ 新增产品</button>
+          <button class="btn ghost" data-act="bulkProd" style="flex:0 0 40%">批量导入</button>
+        </div>
+      </div>
+    </div>
+    <div class="card"><div class="card-bd" id="libList"></div></div>
+    <div class="btnrow" style="margin-bottom:16px">
+      <button class="btn ghost" data-act="exportAll">导出全部数据</button>
+      <button class="btn ghost" data-act="importAll">导入数据</button>
+    </div>
+  </section>
+
+  <!-- ============ 记录页 ============ -->
+  <section class="view" id="view-rec">
+    <div class="card">
+      <div class="card-hd"><span class="dot gold"></span><h2>计算记录</h2>
+        <span class="note" id="recCount">共 0 条</span></div>
+      <div class="card-bd">
+        <input type="search" id="recSearch" placeholder="搜索客户名 / 记录名称" />
+      </div>
+    </div>
+    <div id="recList"></div>
+    <div style="height:16px"></div>
+  </section>
+</main>
+
+<nav class="tabbar">
+  <button data-tab="calc" class="on">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2.5" width="16" height="19" rx="3"/><path d="M8 7h8M8 11h2M12 11h2M16 11h.01M8 15h2M12 15h2M16 15h.01"/></svg>
+    <span>计算</span>
+  </button>
+  <button data-tab="lib">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg>
+    <span>产品库</span>
+  </button>
+  <button data-tab="rec">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M8 7.5h7M8 11h5"/></svg>
+    <span>记录</span>
+  </button>
+</nav>
+
+<div id="layer"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   底价计算器 · 计算内核（纯函数，无 DOM 依赖，可被测试脚本抽取）
+   ============================================================ */
+/* ===== CALC MODULE START ===== */
+function num(v){
+  if (typeof v === 'number') return isFinite(v) ? v : 0;
+  var s = String(v == null ? '' : v).replace(/[^\d.\-]/g, '');
+  var n = parseFloat(s);
+  return isFinite(n) ? n : 0;
+}
+function round2(x){
+  var n = num(x);
+  return Math.round((n + (n >= 0 ? 1e-9 : -1e-9)) * 100) / 100;
+}
+function roundTo(x, prec){
+  var n = num(x), f = Math.pow(10, prec);
+  return Math.round((n + (n >= 0 ? 1e-9 : -1e-9)) * f) / f;
+}
+function trimNum(x, maxDec){
+  var s = num(x).toFixed(maxDec == null ? 6 : maxDec);
+  if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+  return s;
+}
+/**
+ * 底价计算
+ * @param {Array} purchases 拿货行 [{productId,name,spec,price,qty}]  qty=箱；spec=瓶/箱；price=开票价(元/瓶)
+ * @param {Array} gifts     赠送行 [{productId,name,spec,price,qty}]  qty=瓶
+ * @param {string|number|null} payOverride 自定义客户付款金额（空＝取拿货合计）
+ * @param {Object} opts     {precision:2|3|4} 底价保留小数位
+ *
+ * 逻辑：客户付款 P 按「开票价货值」比例分摊到全部到手货品（拿货＋赠送），
+ *       综合折扣率 r = P / 货品开票价总值；
+ *       某产品底价 = 该产品开票价 × r；底价合计应与 P 一致（差额为保留位数四舍五入的尾差）。
+ */
+function computePlan(purchases, gifts, payOverride, opts){
+  purchases = purchases || []; gifts = gifts || [];
+  opts = opts || {};
+  var prec = [2,3,4].indexOf(opts.precision) >= 0 ? opts.precision : 2;
+
+  var purchaseTotal = 0, giftValue = 0, purchaseBoxes = 0, giftBottles = 0;
+  var map = Object.create(null), order = [];
+
+  function keyOf(row){
+    if (row.productId) return 'id:' + row.productId;
+    return 'n:' + String(row.name || '') + '|' + num(row.price) + '|' + num(row.spec);
+  }
+  function put(row, isPurchase){
+    var price = num(row.price);
+    var spec = Math.round(num(row.spec));
+    var qty = num(row.qty);
+    if (!(price > 0) || !(qty > 0)) return;
+    if (isPurchase && !(spec > 0)) return; // 拿货行规格缺失/为0时整行跳过, 不再静默按1瓶/箱计
+    var k = keyOf(row), it = map[k];
+    if (!it){
+      it = { key:k, productId:row.productId || '', name:String(row.name || '未命名产品'),
+             spec:spec, price:price, degree:row.degree || '', volume:row.volume || '',
+             pBottles:0, gBottles:0, pBoxes:0 };
+      map[k] = it; order.push(it);
+    }
+    if (isPurchase){
+      var bottles = qty * spec;
+      it.pBottles += bottles; it.pBoxes += qty; it.spec = spec; it.price = price;
+      purchaseTotal += bottles * price; purchaseBoxes += qty;
+    } else {
+      it.gBottles += qty; giftBottles += qty;
+      giftValue += qty * price;
+    }
+  }
+  purchases.forEach(function(r){ put(r, true); });
+  gifts.forEach(function(r){ put(r, false); });
+
+  purchaseTotal = round2(purchaseTotal);
+  giftValue = round2(giftValue);
+  var invoiceTotal = round2(purchaseTotal + giftValue);
+
+  var overridden = !(payOverride === '' || payOverride == null);
+  // 手动填写的付款金额保留最多 4 位小数（算式计算器可能算出 103.644 这类值）
+  var payment = overridden ? roundTo(num(payOverride), 4) : purchaseTotal;
+  var rate = invoiceTotal > 0 ? payment / invoiceTotal : 0;
+
+  var items = order.map(function(it){
+    var qty = it.pBottles + it.gBottles;
+    var invoiceValue = round2(qty * it.price);
+    var exact = it.price * rate;
+    var bottom = roundTo(exact, prec);
+    return {
+      key: it.key, productId: it.productId, name: it.name, spec: it.spec, price: it.price,
+      degree: it.degree, volume: it.volume,
+      pBottles: it.pBottles, gBottles: it.gBottles, pBoxes: it.pBoxes, qty: qty,
+      invoiceValue: invoiceValue,
+      exactBottom: exact,
+      bottom: bottom,
+      allocated: round2(qty * bottom),
+      discount: it.price > 0 ? bottom / it.price : 0
+    };
+  });
+
+  var totalBottles = items.reduce(function(a, it){ return a + it.qty; }, 0);
+  var sumByBottom = round2(items.reduce(function(a, it){ return a + it.qty * it.bottom; }, 0));
+  var diff = roundTo(payment - sumByBottom, 4);
+  // 保留位数四舍五入的合理尾差上限：每瓶最多 0.5 个最低位
+  var tolerance = round2(0.5 * Math.pow(10, -prec) * totalBottles);
+  var pass = Math.abs(diff) <= tolerance + 1e-9;
+
+  return {
+    purchaseTotal: purchaseTotal, giftValue: giftValue, invoiceTotal: invoiceTotal,
+    purchaseBoxes: purchaseBoxes, giftBottles: giftBottles,
+    payment: payment, overridden: overridden, rate: rate, precision: prec,
+    items: items, totalBottles: totalBottles,
+    sumByBottom: sumByBottom, diff: diff, tolerance: tolerance,
+    pass: pass, exact: pass && diff === 0,
+    hasData: items.length > 0
+  };
+}
+/* ===== CALC MODULE END ===== */
+
+/* ============================================================
+   算式计算器（纯函数，无 DOM 依赖，可被测试脚本抽取）
+   支持：+ - × ÷ ( ) 和百分号 %；x / X / · 也当作乘号，÷／/ 当作除号
+   例：600x97%÷(600+130)x130  →  103.64383561643836
+   ============================================================ */
+/* ===== EXPR MODULE START ===== */
+function normalizeExpr(src){
+  return String(src == null ? '' : src)
+    .replace(/^[=＝]\s*/, '')
+    .replace(/[×✕＊xX·⋅]/g, '*')
+    .replace(/[÷／/]/g, '/')
+    .replace(/（/g, '(')
+    .replace(/）/g, ')')
+    .replace(/％/g, '%')
+    .replace(/[，,]/g, '')
+    .replace(/[－—–−]/g, '-')
+    .replace(/＋/g, '+')
+    .replace(/[．。]/g, '.')
+    .replace(/\s+/g, '');
+}
+/** 返回数值；算式非法（括号不配对、除数为 0、含非法字符等）返回 null */
+function evalExpr(src){
+  var s = normalizeExpr(src);
+  if (!s || s.length > 200) return null;
+  var i = 0;
+  function peek(){ return s.charAt(i); }
+  function pct(v){ while (peek() === '%'){ i++; v = v / 100; } return v; }
+  function primary(){
+    var c = peek();
+    if (c === '('){
+      i++;
+      var v = expr();
+      if (v === null || peek() !== ')') return null;
+      i++;
+      return pct(v);
+    }
+    var m = /^(?:\d+(?:\.\d*)?|\.\d+)/.exec(s.slice(i));
+    if (!m) return null;
+    i += m[0].length;
+    return pct(parseFloat(m[0]));
+  }
+  function unary(){
+    var c = peek();
+    if (c === '+'){ i++; return unary(); }
+    if (c === '-'){ i++; var v = unary(); return v === null ? null : -v; }
+    return primary();
+  }
+  function term(){
+    var v = unary();
+    if (v === null) return null;
+    for (;;){
+      var c = peek();
+      if (c === '*'){ i++; var r = unary(); if (r === null) return null; v *= r; }
+      else if (c === '/'){ i++; var d = unary(); if (d === null || d === 0) return null; v /= d; }
+      else return v;
+    }
+  }
+  function expr(){
+    var v = term();
+    if (v === null) return null;
+    for (;;){
+      var c = peek();
+      if (c === '+'){ i++; var r = term(); if (r === null) return null; v += r; }
+      else if (c === '-'){ i++; var r2 = term(); if (r2 === null) return null; v -= r2; }
+      else return v;
+    }
+  }
+  var out = expr();
+  if (out === null || i !== s.length || !isFinite(out)) return null;
+  return out;
+}
+/* ===== EXPR MODULE END ===== */
+/* ============================================================
+   应用层
+   ============================================================ */
+(function(){
+  'use strict';
+
+  var K = { P:'bjdj.products.v1', R:'bjdj.records.v1', D:'bjdj.draft.v1', S:'bjdj.settings.v1' };
+  var uid = function(){ return Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4); };
+
+  function load(k, def){
+    try { var s = localStorage.getItem(k); if (s == null) return def; var v = JSON.parse(s); return v == null ? def : v; }
+    catch(e){ return def; }
+  }
+  function store(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){ toast('本机存储写入失败'); } }
+
+  var SEED = [
+    { name:'五年',     spec:6, price:100,  degree:'', volume:'' },
+    { name:'六年',     spec:6, price:130,  degree:'', volume:'' },
+    { name:'十年',     spec:4, price:285,  degree:'', volume:'' },
+    { name:'二十年',   spec:4, price:385,  degree:'', volume:'' },
+    { name:'十年礼盒', spec:2, price:260,  degree:'', volume:'' },
+    { name:'5斤臻品',  spec:1, price:1000, degree:'', volume:'' },
+    { name:'2斤五年',  spec:4, price:200,  degree:'', volume:'' }
+  ];
+
+  var products = load(K.P, null);
+  if (!Array.isArray(products)){
+    products = SEED.map(function(p){ var o = { id:uid() }; for (var k in p) o[k] = p[k]; return o; });
+    store(K.P, products);
+  }
+  var records = load(K.R, []);
+  if (!Array.isArray(records)) records = [];
+  var settings = load(K.S, { precision: 2 });
+  if ([2,3,4].indexOf(settings.precision) < 0) settings.precision = 2;
+
+  var draft = load(K.D, null);
+  if (!draft || typeof draft !== 'object') draft = { purchases: [], gifts: [], customPay: false, pay: '' };
+  draft.purchases = Array.isArray(draft.purchases) ? draft.purchases : [];
+  draft.gifts = Array.isArray(draft.gifts) ? draft.gifts : [];
+  draft.customer = typeof draft.customer === 'string' ? draft.customer : '';
+  draft.note = typeof draft.note === 'string' ? draft.note : '';
+  draft.expr = typeof draft.expr === 'string' ? draft.expr : '';
+  if (!draft.purchases.length && !draft.gifts.length){
+    draft.purchases = [newRow('p')];
+    draft.gifts = [newRow('g')];
+  }
+
+  /* ---------------- 工具 ---------------- */
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c];
+    });
+  }
+  function money(n){
+    var v = round2(num(n));
+    if (v === 0) v = 0; // 消除 -0，避免出现「-¥0.00」
+    var abs = Math.abs(v).toLocaleString('zh-CN', { minimumFractionDigits:2, maximumFractionDigits:2 });
+    return (v < 0 ? '-¥' : '¥') + abs;
+  }
+  function plain(n){
+    var v = round2(num(n));
+    if (v === 0) v = 0;
+    return v.toFixed(2);
+  }
+  function pct(r){ return (num(r) * 100).toFixed(r >= 0.1 ? 1 : 2) + '%'; }
+  // 底价按所选位数显示（2/3/4 位）
+  function bp(v, prec){ return num(v).toFixed([2,3,4].indexOf(prec) >= 0 ? prec : 2); }
+  /* 瓶数 → 箱/瓶 更好读：48(规格6)→8箱；46(规格6)→7箱4瓶；5(规格6)→5瓶 */
+  function boxBottleText(bottles, spec){
+    var n = Math.max(0, Math.round(num(bottles)));
+    var sp = Math.round(num(spec));
+    if (!(sp > 1) || n < sp) return n + '瓶';     // 规格不明 或 不足一箱 → 直接显示瓶数
+    var bx = Math.floor(n / sp), rest = n % sp;
+    return bx + '箱' + (rest ? rest + '瓶' : '');
+  }
+  // 金额显示：正好是整分就用常规两位；否则（如算式算出的 103.644）保留真实小数位
+  function moneyPrec(n){
+    var v = roundTo(num(n), 4);
+    if (v === 0) v = 0;
+    if (Math.abs(v - round2(v)) < 1e-9) return money(v);
+    var parts = Math.abs(v).toFixed(4).replace(/0+$/, '').replace(/\.$/, '').split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (v < 0 ? '-¥' : '¥') + parts.join('.');
+  }
+  // 算式结果的显示与填值文本：最多 3 位小数，去掉多余的 0（103.6438… → 103.644）
+  function resText(v){
+    var s = roundTo(num(v), 3).toFixed(3).replace(/0+$/, '').replace(/\.$/, '');
+    return (s === '' || s === '-') ? '0' : s;
+  }
+  function newRow(kind){
+    return { rid: uid(), kind: kind, productId:'', name:'', spec:'', price:'', degree:'', volume:'', qty:'' };
+  }
+  function findProduct(id){
+    for (var i = 0; i < products.length; i++) if (products[i].id === id) return products[i];
+    return null;
+  }
+  function syncRow(r){
+    if (r.productId){
+      var p = findProduct(r.productId);
+      if (p){ r.name = p.name; r.spec = p.spec; r.price = p.price; r.degree = p.degree || ''; r.volume = p.volume || ''; }
+    }
+    return r;
+  }
+  function saveDraft(){ store(K.D, draft); }
+
+  var toastTimer = null;
+  function toast(msg){
+    var el = document.getElementById('toast');
+    el.textContent = msg; el.classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ el.classList.remove('on'); }, 1900);
+  }
+
+  /* ---------------- 弹层 ---------------- */
+  var layer = document.getElementById('layer');
+  var tempURLs = [];
+  function trackURL(u){ tempURLs.push(u); return u; }
+  function closeLayer(){
+    tempURLs.forEach(function(u){ try { URL.revokeObjectURL(u); } catch(e){} });
+    tempURLs = [];
+    layer.innerHTML = '';
+    document.body.style.overflow = '';
+  }
+  function openLayer(html, center){
+    layer.innerHTML = '<div class="mask' + (center ? ' center' : '') + '">' + html + '</div>';
+    document.body.style.overflow = 'hidden';
+    var mask = layer.firstChild;
+    mask.addEventListener('click', function(e){ if (e.target === mask) closeLayer(); });
+    return mask;
+  }
+  function sheet(title, bodyHTML, footerHTML, onMount){
+    var m = openLayer(
+      '<div class="sheet">' +
+        '<div class="sheet-hd"><h3>' + esc(title) + '</h3><button class="sheet-x" data-act="closelayer">✕</button></div>' +
+        '<div class="sheet-bd">' + bodyHTML + '</div>' +
+        (footerHTML ? '<div class="sheet-ft">' + footerHTML + '</div>' : '') +
+      '</div>');
+    var sheetEl = m.firstChild;
+    sheetEl.addEventListener('click', function(e){ if (e.target.closest('[data-act="closelayer"]')) closeLayer(); });
+    if (onMount) onMount(sheetEl);
+  }
+  function confirmDlg(title, msg, okText){
+    return new Promise(function(resolve){
+      var m = openLayer(
+        '<div class="dlg"><h3>' + esc(title) + '</h3><p>' + esc(msg) + '</p>' +
+        '<div class="btnrow"><button class="btn ghost" data-c="0">取消</button>' +
+        '<button class="btn primary" data-c="1">' + esc(okText || '确定') + '</button></div></div>', true);
+      m.addEventListener('click', function(e){
+        var b = e.target.closest('[data-c]');
+        if (!b) return;
+        closeLayer(); resolve(b.getAttribute('data-c') === '1');
+      });
+    });
+  }
+  function promptDlg(title, value, placeholder){
+    return new Promise(function(resolve){
+      var m = openLayer(
+        '<div class="dlg"><h3>' + esc(title) + '</h3>' +
+        '<div class="field"><input id="_pv" type="text" value="' + esc(value || '') + '" placeholder="' + esc(placeholder || '') + '" /></div>' +
+        '<div class="btnrow"><button class="btn ghost" data-c="0">取消</button>' +
+        '<button class="btn primary" data-c="1">确定</button></div></div>', true);
+      var input = m.querySelector('#_pv');
+      setTimeout(function(){ input.focus(); input.select(); }, 60);
+      function done(ok){ var v = input.value.trim(); closeLayer(); resolve(ok ? v : null); }
+      m.addEventListener('click', function(e){
+        var b = e.target.closest('[data-c]'); if (!b) return; done(b.getAttribute('data-c') === '1');
+      });
+      input.addEventListener('keydown', function(e){ if (e.key === 'Enter') done(true); });
+    });
+  }
+
+  /* ---------------- 计算 ---------------- */
+  function currentPlan(){
+    var ps = draft.purchases.map(syncRow).map(function(r){
+      return { productId:r.productId, name:r.name, spec:r.spec, price:r.price, qty:r.qty, degree:r.degree, volume:r.volume };
+    });
+    var gs = draft.gifts.map(syncRow).map(function(r){
+      return { productId:r.productId, name:r.name, spec:r.spec, price:r.price, qty:r.qty, degree:r.degree, volume:r.volume };
+    });
+    var pay = draft.customPay ? draft.pay : '';
+    return computePlan(ps, gs, pay, { precision: settings.precision });
+  }
+
+  function rowAmount(r, kind){
+    var spec = Math.round(num(r.spec));
+    var qty = num(r.qty);
+    if (!r.name || !(num(r.price) > 0) || !(qty > 0)) return 0;
+    if (kind === 'p' && !(spec > 0)) return 0; // 拿货行规格缺失/为0时不计金额, 不再静默兜底成1瓶/箱
+    return round2(kind === 'p' ? qty * spec * num(r.price) : qty * num(r.price));
+  }
+
+  function findRow(kind, rid){
+    var list = kind === 'p' ? draft.purchases : draft.gifts;
+    for (var i = 0; i < list.length; i++) if (list[i].rid === rid) return list[i];
+    return null;
+  }
+  /* 改数量：手动输入与 ▲▼ 按钮共用同一套逻辑，只刷新金额与结果，不重建明细行（避免失焦） */
+  function applyQty(kind, rid, value){
+    var row = findRow(kind, rid);
+    if (!row) return;
+    var clean = String(value == null ? '' : value).replace(/[^\d.]/g, '');
+    row.qty = clean;
+    var input = document.querySelector('input[data-qty="' + kind + '"][data-rid="' + rid + '"]');
+    if (input){
+      if (input.value !== clean) input.value = clean;
+      var cell = input.closest('.rowline').querySelector('.amt');
+      var amt = rowAmount(row, kind);
+      if (cell){
+        cell.textContent = amt > 0 ? money(amt) : '—';
+        cell.classList.toggle('p0', !(amt > 0));
+      }
+    }
+    saveDraft();
+    var plan = currentPlan();
+    renderTotals(plan); renderResult(plan); renderVerify(plan);
+  }
+  function bumpQty(kind, rid, delta){
+    var row = findRow(kind, rid);
+    if (!row) return;
+    var nv = num(row.qty) + delta;
+    if (nv < 0) nv = 0;
+    // 拿货按箱步进保持整数箱; 赠送按瓶允许 0.5 瓶半瓶步进(部分产品以半瓶计)
+    var clamped = kind === 'p' ? Math.max(0, Math.round(nv)) : Math.max(0, Math.round(nv * 2) / 2);
+    applyQty(kind, rid, clamped);
+  }
+
+  function rowHTML(r, kind){
+    var isP = kind === 'p';
+    var amt = rowAmount(r, kind);
+    var spec = Math.round(num(r.spec));
+    var sub = r.name
+      ? (isP ? (spec > 0 ? spec + '瓶/箱 · ' : '未填规格 · ') + '开票价 ' + money(r.price) + '/瓶' : '开票价 ' + money(r.price) + '/瓶')
+      : (isP ? '点击选择拿货产品' : '点击选择赠送产品');
+    var chips = '';
+    if (r.degree) chips += '<span class="chip b">' + esc(r.degree) + '</span>';
+    if (r.volume) chips += '<span class="chip">' + esc(r.volume) + '</span>';
+    var unit = isP ? '箱' : '瓶';
+    return '<div class="rowline" data-rid="' + r.rid + '">' +
+      '<button type="button" class="pick' + (r.name ? '' : ' empty') + '" data-act="pick" data-kind="' + kind + '" data-rid="' + r.rid + '">' +
+        '<span class="nm">' + (r.name ? esc(r.name) : '选择产品') + chips + '</span>' +
+        '<span class="sub">' + esc(sub) + '</span>' +
+      '</button>' +
+      '<div class="qtygrp">' +
+        '<div class="qty"><input type="text" inputmode="decimal" data-qty="' + kind + '" data-rid="' + r.rid + '" value="' + esc(r.qty) + '" placeholder="0" />' +
+          '<span class="unit">' + unit + '</span></div>' +
+        '<div class="spin">' +
+          '<button type="button" data-act="inc" data-kind="' + kind + '" data-rid="' + r.rid + '" aria-label="增加' + unit + '数">▲</button>' +
+          '<button type="button" data-act="dec" data-kind="' + kind + '" data-rid="' + r.rid + '" aria-label="减少' + unit + '数">▼</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="amt' + (amt > 0 ? '' : ' p0') + '">' + (amt > 0 ? money(amt) : '—') + '</div>' +
+      '<button type="button" class="del" data-act="delrow" data-kind="' + kind + '" data-rid="' + r.rid + '" aria-label="删除此行">✕</button>' +
+    '</div>';
+  }
+
+  function renderRows(kind){
+    var box = document.getElementById(kind === 'p' ? 'purchaseRows' : 'giftRows');
+    var list = kind === 'p' ? draft.purchases : draft.gifts;
+    box.innerHTML = list.length
+      ? list.map(function(r){ return rowHTML(r, kind); }).join('')
+      : '<div class="empty"><span class="em">🥃</span>暂无' + (kind === 'p' ? '拿货' : '赠送') + '产品，点击下方按钮添加</div>';
+  }
+
+  function renderResult(plan){
+    var box = document.getElementById('resultBox');
+    if (!plan.hasData){
+      box.innerHTML = '<div class="empty"><span class="em">📊</span>录入拿货 / 赠送产品后，这里自动列出每个产品的底价</div>';
+      return;
+    }
+    var html = '<div class="summary">' +
+      '<div class="kpi"><i>客户付款</i><b class="red">' + moneyPrec(plan.payment) + '</b></div>' +
+      '<div class="kpi"><i>货品开票总值</i><b>' + money(plan.invoiceTotal) + '</b></div>' +
+      '<div class="kpi"><i>综合折扣</i><b>' + pct(plan.rate) + '</b></div>' +
+      '<div class="kpi"><i>到手总瓶数</i><b>' + plan.totalBottles + ' 瓶</b></div>' +
+      '<div class="kpi"><i>拿货箱数</i><b>' + plan.purchaseBoxes + ' 箱</b></div>' +
+      '<div class="kpi"><i>赠送瓶数</i><b>' + plan.giftBottles + ' 瓶</b></div>' +
+    '</div>';
+
+    html += plan.items.map(function(it){
+      var bits = [];
+      if (it.spec > 1) bits.push(it.spec + '瓶/箱');
+      if (it.degree) bits.push(esc(it.degree));
+      if (it.volume) bits.push(esc(it.volume));
+      var exactTxt = trimNum(it.exactBottom, 6);
+      return '<div class="res">' +
+        '<div class="res-hd"><div style="flex:1;min-width:0">' +
+          '<div class="rn">' + esc(it.name) + '</div>' +
+          '<div class="rs">' + (bits.length ? bits.join(' · ') : '—') + ' · 开票价 ' + money(it.price) + '/瓶</div>' +
+        '</div></div>' +
+        '<div class="res-price"><span class="lb">底价</span><b>' + bp(it.bottom, plan.precision) + '</b><span class="per">元/瓶</span>' +
+          '<span class="tag">折扣 ' + pct(it.discount) + '</span></div>' +
+        '<div class="kv">' +
+          '<div><i>拿货</i><b>' + (it.pBoxes ? it.pBoxes + '箱 / ' + it.pBottles + '瓶' : '—') + '</b></div>' +
+          '<div><i>赠送</i><b>' + (it.gBottles ? it.gBottles + '瓶' : '—') + '</b></div>' +
+          '<div><i>到手合计</i><b>' + boxBottleText(it.qty, it.spec) + '</b></div>' +
+          '<div><i>按底价金额</i><b>' + money(it.allocated) + '</b></div>' +
+        '</div>' +
+        '<div class="exact">精确底价 ' + exactTxt + ' 元/瓶（保留 ' + plan.precision + ' 位显示）</div>' +
+      '</div>';
+    }).join('');
+    box.innerHTML = html;
+  }
+
+  function renderVerify(plan){
+    var box = document.getElementById('verifyBox');
+    if (!plan.hasData){
+      box.innerHTML = '<div class="empty">暂无数据可验算</div>';
+      return;
+    }
+    var cls = plan.exact ? 'ok' : (plan.pass ? 'warn' : 'bad');
+    var ico = plan.exact ? '✅' : (plan.pass ? '⚠️' : '❌');
+    var msg;
+    if (plan.exact) msg = '<b>验算通过</b>：各产品「到手总数量 × 底价」合计刚好等于客户付款金额。';
+    else if (plan.pass) msg = '<b>验算通过（含尾差）</b>：差额 ' + moneyPrec(Math.abs(plan.diff)) +
+      '，在保留 ' + plan.precision + ' 位小数的合理尾差 ' + moneyPrec(plan.tolerance) + ' 以内。若需完全一致，可切换为 4 位底价。';
+    else msg = '<b>验算不通过</b>：差额 ' + moneyPrec(plan.diff) + '，超出允许尾差 ' + moneyPrec(plan.tolerance) + '，请检查录入数据。';
+
+    box.innerHTML = '<div class="verify">' +
+      '<div class="vline big"><i>客户付款金额</i><b>' + moneyPrec(plan.payment) + '</b></div>' +
+      '<div class="vline"><i>按底价合计（瓶数 × 底价）</i><b>' + moneyPrec(plan.sumByBottom) + '</b></div>' +
+      '<div class="vline"><i>差额</i><b>' + (plan.diff > 0 ? '+' : '') + moneyPrec(plan.diff) + '</b></div>' +
+      '<div class="vline"><i>允许尾差</i><b>' + moneyPrec(plan.tolerance) + '</b></div>' +
+      '<div class="status ' + cls + '"><span class="ico">' + ico + '</span><span>' + msg + '</span></div>' +
+    '</div>';
+  }
+
+  function renderTotals(plan){
+    document.getElementById('purchaseTotal').textContent = money(plan.purchaseTotal);
+    document.getElementById('giftTotal').textContent = money(plan.giftValue);
+    var payInput = document.getElementById('payInput');
+    payInput.disabled = !draft.customPay;
+    if (draft.customPay){
+      if (document.activeElement !== payInput) payInput.value = draft.pay === '' ? '' : String(draft.pay);
+    } else {
+      payInput.value = plain(plan.purchaseTotal);
+    }
+  }
+
+  /* 手动付款开关 + 算式计算器的显示状态 */
+  function syncPayUI(){
+    var on = !!draft.customPay;
+    document.getElementById('payCustom').checked = on;
+    document.getElementById('exprWrap').style.display = on ? '' : 'none';
+    var ei = document.getElementById('exprInput');
+    if (document.activeElement !== ei) ei.value = draft.expr || '';
+  }
+
+  function exprResultEl(msg, ok){
+    var el = document.getElementById('exprResult');
+    el.className = ok ? 'hint exprres' : 'hint exprbad';
+    el.innerHTML = msg;
+  }
+
+  /* 点「＝ 计算」：算算式 → 填进付款金额 → 重算底价 */
+  function runExpr(){
+    var input = document.getElementById('exprInput');
+    var raw = input.value;
+    draft.expr = raw; saveDraft();
+    if (!raw.trim()){ exprResultEl('请先输入算式，例如 600x97%÷(600+130)x130', false); toast('请先输入算式'); return null; }
+    var v = evalExpr(raw);
+    if (v === null || !isFinite(v)){
+      exprResultEl('算式有误：请检查括号是否配对、运算符是否正确（支持 + − × ÷ % 和括号）', false);
+      toast('算式有误，请检查');
+      return null;
+    }
+    var shown = resText(v);          // 103.6438356… → 103.644
+    var exactTxt = trimNum(v, 6);    // 103.643836
+    draft.customPay = true;
+    draft.pay = shown;
+    saveDraft();
+    syncPayUI();
+    renderCalc();
+    exprResultEl('＝ <b>' + esc(shown) + '</b>　已填入付款金额' +
+      (exactTxt !== shown ? '（完整值 ' + esc(exactTxt) + '）' : ''), true);
+    try { input.blur(); } catch(err){}     // 算完就收起输入法，方便看结果
+    return v;
+  }
+
+  /* 手机键盘上没有 × ÷ % ( )，用快捷键插到光标处。
+     注意：快捷键按钮不能抢走输入框焦点，否则光标会丢——插完符号后光标跑到符号前面就是这个原因。 */
+  function insertExpr(txt){
+    var el = document.getElementById('exprInput');
+    if (!el) return;
+    var s = el.value;
+    var focused = (document.activeElement === el);
+    // 已聚焦 → 用真实光标位置；未聚焦（如刚点开算式）→ 追加到末尾
+    var a = (focused && el.selectionStart != null) ? el.selectionStart : s.length;
+    var b = (focused && el.selectionEnd != null) ? el.selectionEnd : a;
+    var caret;
+    if (txt === 'back'){
+      if (a === b && a > 0){ s = s.slice(0, a - 1) + s.slice(a); caret = a - 1; }
+      else if (a !== b){ s = s.slice(0, a) + s.slice(b); caret = a; }
+      else return;
+    } else {
+      s = s.slice(0, a) + txt + s.slice(b);
+      caret = a + txt.length;
+    }
+    el.value = s;
+    draft.expr = s; saveDraft();
+    el.focus();
+    placeCaret(el, caret);
+  }
+  /* 有些手机浏览器在 focus() 之后会重置光标，补两次确保落在正确位置 */
+  function placeCaret(el, pos){
+    function put(){ try { el.setSelectionRange(pos, pos); } catch(err){} }
+    put();
+    if (window.requestAnimationFrame) requestAnimationFrame(put);
+    setTimeout(put, 0);
+  }
+
+  function renderCalc(){
+    renderRows('p');
+    renderRows('g');
+    var plan = currentPlan();
+    renderTotals(plan);
+    renderResult(plan);
+    renderVerify(plan);
+    return plan;
+  }
+
+  /* ---------------- 产品库 ---------------- */
+  function renderLib(){
+    var q = (document.getElementById('libSearch').value || '').trim().toLowerCase();
+    var list = products.filter(function(p){
+      if (!q) return true;
+      return (p.name || '').toLowerCase().indexOf(q) >= 0 ||
+             String(p.degree || '').toLowerCase().indexOf(q) >= 0 ||
+             String(p.volume || '').toLowerCase().indexOf(q) >= 0;
+    });
+    document.getElementById('libCount').textContent = '共 ' + products.length + ' 个产品';
+    var box = document.getElementById('libList');
+    if (!products.length){
+      box.innerHTML = '<div class="empty"><span class="em">📦</span>产品库是空的，点击上方「新增产品」或「批量导入」<br>建立你的产品与开票价档案</div>';
+      return;
+    }
+    if (!list.length){
+      box.innerHTML = '<div class="empty">没有匹配「' + esc(q) + '」的产品</div>';
+      return;
+    }
+    box.innerHTML = list.map(function(p){
+      var chips = '';
+      if (p.degree) chips += '<span class="chip b">' + esc(p.degree) + '</span>';
+      if (p.volume) chips += '<span class="chip">' + esc(p.volume) + '</span>';
+      return '<div class="item">' +
+        '<div class="main"><div class="t1">' + esc(p.name) + chips + '</div>' +
+        '<div class="t2">' + (num(p.spec) || 0) + ' 瓶/箱 · 开票价 ' + money(p.price) + '/瓶</div></div>' +
+        '<div class="acts">' +
+          '<button class="btn xs ghost" data-act="editProd" data-id="' + p.id + '">编辑</button>' +
+          '<button class="btn xs danger" data-act="delProd" data-id="' + p.id + '">删除</button>' +
+        '</div></div>';
+    }).join('');
+  }
+
+  function productSheet(id, onSaved){
+    var p = id ? findProduct(id) : null;
+    var v = p || { name:'', spec:'', price:'', degree:'', volume:'' };
+    sheet(p ? '编辑产品' : '新增产品',
+      '<div class="field"><label>产品名称 *</label><input id="f_name" type="text" value="' + esc(v.name) + '" placeholder="如：五年、飞天茅台" /></div>' +
+      '<div class="grid2">' +
+        '<div class="field"><label>规格（瓶/箱）*</label><input id="f_spec" type="text" inputmode="numeric" value="' + esc(v.spec) + '" placeholder="如 6" /></div>' +
+        '<div class="field"><label>开票价（元/瓶）*</label><input id="f_price" type="text" inputmode="decimal" value="' + esc(v.price) + '" placeholder="如 100" /></div>' +
+      '</div>' +
+      '<div class="grid2">' +
+        '<div class="field"><label>度数</label><input id="f_degree" type="text" value="' + esc(v.degree) + '" placeholder="如 52°" /></div>' +
+        '<div class="field"><label>容量</label><input id="f_volume" type="text" value="' + esc(v.volume) + '" placeholder="如 500ml" /></div>' +
+      '</div>' +
+      '<p class="hint">开票价＝单瓶含税开票价格，是底价计算与金额核算的基础。</p>',
+      '<button class="btn ghost" data-act="closelayer">取消</button><button class="btn primary" id="f_save">保存</button>',
+      function(){
+        document.getElementById('f_save').addEventListener('click', function(){
+          var name = document.getElementById('f_name').value.trim();
+          var spec = Math.round(num(document.getElementById('f_spec').value));
+          var price = num(document.getElementById('f_price').value);
+          if (!name) return toast('请填写产品名称');
+          if (!(spec > 0)) return toast('规格需为大于 0 的整数（每箱瓶数）');
+          if (!(price > 0)) return toast('请填写正确的开票价');
+          var data = {
+            name: name, spec: spec, price: round2(price),
+            degree: document.getElementById('f_degree').value.trim(),
+            volume: document.getElementById('f_volume').value.trim()
+          };
+          if (p) { for (var k in data) p[k] = data[k]; toast('已保存修改'); }
+          else { data.id = uid(); products.unshift(data); p = data; toast('已加入产品库'); }
+          store(K.P, products); closeLayer(); renderLib(); renderPickerIfOpen();
+          if (document.getElementById('view-calc').classList.contains('on')) renderCalc();
+          if (onSaved) onSaved(p);
+        });
+        setTimeout(function(){ document.getElementById('f_name').focus(); }, 80);
+      });
+  }
+
+  function bulkSheet(){
+    sheet('批量导入产品',
+      '<p class="hint" style="margin-top:0">每行一个产品，用逗号或空格分隔：<b>名称, 规格(瓶/箱), 开票价(元/瓶), 度数, 容量</b><br>度数与容量可留空。示例：</p>' +
+      '<textarea id="bulk" placeholder="五年,6,100,52°,500ml&#10;十年 4 285&#10;十年礼盒,2,260"></textarea>',
+      '<button class="btn ghost" data-act="closelayer">取消</button><button class="btn primary" id="bulk_ok">导入</button>',
+      function(){
+        document.getElementById('bulk_ok').addEventListener('click', function(){
+          var lines = document.getElementById('bulk').value.split(/\n+/);
+          var ok = 0, bad = 0;
+          lines.forEach(function(line){
+            line = line.trim(); if (!line) return;
+            var parts = line.split(/[,，\t]+|\s{1,}/).filter(function(s){ return s !== ''; });
+            var name = parts[0], spec = Math.round(num(parts[1])), price = num(parts[2]);
+            if (!name || !(spec > 0) || !(price > 0)){ bad++; return; }
+            products.push({ id:uid(), name:name, spec:spec, price:round2(price), degree:parts[3] || '', volume:parts[4] || '' });
+            ok++;
+          });
+          store(K.P, products); closeLayer(); renderLib(); renderPickerIfOpen(); renderCalc();
+          toast('成功导入 ' + ok + ' 个产品' + (bad ? '，' + bad + ' 行格式有误已跳过' : ''));
+        });
+      });
+  }
+
+  /* ---------------- 产品选择器 ---------------- */
+  function renderPickerIfOpen(){
+    var box = layer.querySelector('#pickerList');
+    if (box) renderPickerList(box);
+  }
+  function renderPickerList(box){
+    var q = (layer.querySelector('#pickerSearch') || {}).value || '';
+    q = q.trim().toLowerCase();
+    var list = products.filter(function(p){
+      if (!q) return true;
+      return (p.name || '').toLowerCase().indexOf(q) >= 0 ||
+             String(p.degree || '').toLowerCase().indexOf(q) >= 0 ||
+             String(p.volume || '').toLowerCase().indexOf(q) >= 0;
+    });
+    if (!products.length){
+      box.innerHTML = '<div class="empty"><span class="em">📦</span>产品库还是空的<br>先新增一个产品吧</div>';
+      return;
+    }
+    if (!list.length){ box.innerHTML = '<div class="empty">没有找到匹配的产品</div>'; return; }
+    box.innerHTML = list.map(function(p){
+      var chips = (p.degree ? '<span class="chip b">' + esc(p.degree) + '</span>' : '') +
+                  (p.volume ? '<span class="chip">' + esc(p.volume) + '</span>' : '');
+      return '<div class="pitem" data-act="chooseprod" data-id="' + p.id + '">' +
+        '<div class="main"><div class="t1">' + esc(p.name) + chips + '</div>' +
+        '<div class="t2">' + (num(p.spec) || 0) + ' 瓶/箱</div></div>' +
+        '<div class="pr">' + plain(p.price) + '<small> 元/瓶</small></div></div>';
+    }).join('');
+  }
+  function assignProduct(kind, rid, p){
+    var list = kind === 'p' ? draft.purchases : draft.gifts;
+    var row = null;
+    for (var i = 0; i < list.length; i++) if (list[i].rid === rid) row = list[i];
+    if (!row){ row = newRow(kind); list.push(row); }
+    row.productId = p.id; row.name = p.name; row.spec = p.spec; row.price = p.price;
+    row.degree = p.degree || ''; row.volume = p.volume || '';
+    if (!(num(row.qty) > 0)) row.qty = '1';
+    saveDraft(); renderCalc();
+  }
+  function pickerSheet(kind, rid){
+    sheet(kind === 'p' ? '选择拿货产品' : '选择赠送产品',
+      '<input type="search" id="pickerSearch" placeholder="输入产品名称筛选" />' +
+      '<div class="plist" id="pickerList" style="margin-top:8px"></div>',
+      '<button class="btn ghost" data-act="closelayer">取消</button><button class="btn primary" id="pickerNew">＋ 新增产品</button>',
+      function(){
+        var box = layer.querySelector('#pickerList');
+        renderPickerList(box);
+        layer.querySelector('#pickerSearch').addEventListener('input', function(){ renderPickerList(box); });
+        layer.querySelector('#pickerNew').addEventListener('click', function(){
+          closeLayer();
+          productSheet(null, function(np){ assignProduct(kind, rid, np); toast('已新建并选入「' + np.name + '」'); });
+        });
+        box.addEventListener('click', function(e){
+          var it = e.target.closest('[data-act="chooseprod"]'); if (!it) return;
+          var p = findProduct(it.getAttribute('data-id')); if (!p) return;
+          assignProduct(kind, rid, p);
+          closeLayer();
+        });
+      });
+  }
+
+  /* ---------------- 记录 ---------------- */
+  function autoName(plan){
+    var d = new Date();
+    var base = (d.getMonth() + 1) + '月' + d.getDate() + '日';
+    var first = plan.items[0] ? plan.items[0].name : '计算';
+    var name = base + ' · ' + (draft.customer ? draft.customer + ' · ' : '') + first +
+      (plan.items.length > 2 ? ' 等' + plan.items.length + '种' : '');
+    var n = 2, out = name;
+    while (records.some(function(r){ return r.name === out; })) { out = name + '(' + (n++) + ')'; }
+    return out;
+  }
+  function currentRowsSnapshot(){
+    return {
+      customer: (draft.customer || '').trim(),
+      note: (draft.note || '').trim(),
+      purchases: draft.purchases.filter(function(r){ return r.name && num(r.qty) > 0; }).map(function(r){
+        return { productId:r.productId, name:r.name, spec:num(r.spec), price:num(r.price), qty:num(r.qty), degree:r.degree, volume:r.volume };
+      }),
+      gifts: draft.gifts.filter(function(r){ return r.name && num(r.qty) > 0; }).map(function(r){
+        return { productId:r.productId, name:r.name, spec:num(r.spec), price:num(r.price), qty:num(r.qty), degree:r.degree, volume:r.volume };
+      }),
+      customPay: draft.customPay, pay: draft.pay, expr: draft.expr || ''
+    };
+  }
+  function saveRecord(){
+    var plan = currentPlan();
+    if (!plan.hasData) return toast('请先添加有效的拿货或赠送产品');
+    var snap = currentRowsSnapshot();
+    var rec = {
+      id: uid(), name: autoName(plan), customer: snap.customer, note: snap.note,
+      createdAt: Date.now(), updatedAt: Date.now(),
+      purchases: snap.purchases, gifts: snap.gifts, customPay: snap.customPay, pay: snap.pay, expr: snap.expr,
+      summary: { payment: plan.payment, totalBottles: plan.totalBottles, rate: plan.rate,
+                 precision: plan.precision, diff: plan.diff, pass: plan.pass }
+    };
+    records.unshift(rec);
+    store(K.R, records);
+    renderRecords();
+    toast('已保存「' + rec.name + '」' + (rec.customer ? '（客户：' + rec.customer + '）' : ''));
+    updateTabBadge();
+  }
+  function recHaystack(r){
+    var names = (r.purchases || []).concat(r.gifts || []).map(function(x){ return x.name; }).join(' ');
+    return [r.name, r.customer, r.note, names].join(' ').toLowerCase();
+  }
+  function renderRecords(){
+    var q = (document.getElementById('recSearch').value || '').trim().toLowerCase();
+    var list = records.filter(function(r){ return !q || recHaystack(r).indexOf(q) >= 0; });
+    document.getElementById('recCount').textContent = '共 ' + records.length + ' 条';
+    var box = document.getElementById('recList');
+    if (!records.length){
+      box.innerHTML = '<div class="card"><div class="card-bd"><div class="empty"><span class="em">🗂️</span>还没有计算记录<br>在「计算」页填好后点「保存记录」</div></div></div>';
+      return;
+    }
+    if (!list.length){ box.innerHTML = '<div class="card"><div class="card-bd"><div class="empty">没有匹配的记录</div></div></div>'; return; }
+    box.innerHTML = list.map(function(r){
+      var s = r.summary || {};
+      var d = new Date(r.createdAt || Date.now());
+      var time = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') +
+                 ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+      var names = (r.purchases || []).map(function(x){ return x.name; }).join('、') || '—';
+      var cust = r.customer ? '<span class="chip b">' + esc(r.customer) + '</span>' : '';
+      return '<div class="card"><div class="card-bd">' +
+        '<div class="item" style="padding-top:2px">' +
+          '<div class="main">' +
+            '<div class="t1">' + esc(r.name) + cust + '</div>' +
+            '<div class="t2">' + time + ' · 付款 ' + moneyPrec(s.payment || 0) + ' · ' + (s.totalBottles || 0) + '瓶 · 折扣 ' + pct(s.rate || 0) + '</div>' +
+            '<div class="t2">拿货：' + esc(names) + (r.note ? ' · ' + esc(r.note) : '') + '</div>' +
+          '</div>' +
+          (s.pass === false ? '<span class="chip r">未通过</span>' : '<span class="chip g">已验算</span>') +
+        '</div>' +
+        '<div class="btnrow" style="margin-top:8px">' +
+          '<button class="btn sm primary" data-act="loadRec" data-id="' + r.id + '">载入</button>' +
+          '<button class="btn sm gold" data-act="recImage" data-id="' + r.id + '">长图</button>' +
+          '<button class="btn sm ghost" data-act="renameRec" data-id="' + r.id + '">改名</button>' +
+          '<button class="btn sm danger" data-act="delRec" data-id="' + r.id + '">删除</button>' +
+        '</div>' +
+      '</div></div>';
+    }).join('');
+  }
+
+  /* ---------------- 导入导出 ---------------- */
+  function exportAll(){
+    var data = { app:'白酒底价计算器', version:1, exportedAt:new Date().toISOString(), products:products, records:records, settings:settings };
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = '底价计算器数据-' + new Date().toISOString().slice(0, 10) + '.json';
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+    toast('已导出备份文件');
+  }
+  function importAll(){
+    var input = document.createElement('input');
+    input.type = 'file'; input.accept = '.json,application/json';
+    input.addEventListener('change', function(){
+      var f = input.files && input.files[0]; if (!f) return;
+      var fr = new FileReader();
+      fr.onload = function(){
+        try {
+          var d = JSON.parse(String(fr.result));
+          var np = Array.isArray(d.products) ? d.products : [];
+          var nr = Array.isArray(d.records) ? d.records : (Array.isArray(d) ? d : []);
+          confirmDlg('导入数据', '将导入 ' + np.length + ' 个产品、' + nr.length + ' 条记录。是否覆盖本机现有数据？', '覆盖导入').then(function(ok){
+            if (!ok) return;
+            if (np.length){
+              var names = {};
+              products.forEach(function(p){ names[p.name] = 1; });
+              np.forEach(function(p){
+                if (p && p.name && !names[p.name]){ p.id = p.id || uid(); products.push(p); names[p.name] = 1; }
+              });
+              store(K.P, products);
+            }
+            nr.forEach(function(r){ if (r && r.id) records.unshift(r); });
+            store(K.R, records);
+            renderLib(); renderRecords(); renderCalc(); updateTabBadge();
+            toast('导入完成');
+          });
+        } catch(e){ toast('文件解析失败，请选择本工具导出的 JSON'); }
+      };
+      fr.readAsText(f);
+    });
+    input.click();
+  }
+
+  /* ---------------- 生成对账单长图（Canvas 手绘，无外部依赖） ---------------- */
+  var DSH_FONT = '-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue","Microsoft YaHei",sans-serif';
+  function setFont(ctx, size, weight){ ctx.font = (weight || 400) + ' ' + size + 'px ' + DSH_FONT; }
+  function rrect(ctx, x, y, w, h, r){
+    r = Math.min(r || 0, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+  // 中文避头尾：这些符号不能出现在行首，宁可让上一行稍微超宽
+  var NO_HEAD_CHARS = '）)】」』》〉””、，。；：！？%·,.!?:;';
+  // 开括号不要留在行尾：若「括号 + 后面内容」能整体挪到下一行，就在括号前断行
+  var OPEN_CHARS = '（(【「『《〈';
+  function wrapLines(ctx, text, maxW, maxLines){
+    text = String(text == null ? '' : text);
+    var lines = [], cur = '';
+    for (var i = 0; i < text.length; i++){
+      var ch = text.charAt(i);
+      if (cur && OPEN_CHARS.indexOf(ch) >= 0 && NO_HEAD_CHARS.indexOf(ch) < 0 &&
+          ctx.measureText(cur + text.slice(i)).width > maxW &&
+          ctx.measureText(text.slice(i)).width <= maxW){
+        lines.push(cur); cur = ch; continue;
+      }
+      if (cur && ctx.measureText(cur + ch).width > maxW && NO_HEAD_CHARS.indexOf(ch) < 0){ lines.push(cur); cur = ch; }
+      else cur += ch;
+    }
+    if (cur) lines.push(cur);
+    if (!lines.length) lines = [''];
+    if (maxLines && lines.length > maxLines){
+      lines = lines.slice(0, maxLines);
+      lines[maxLines - 1] = lines[maxLines - 1].slice(0, -1) + '…';
+    }
+    return lines;
+  }
+  function signMoney(v){ return (v > 0 ? '+' : v < 0 ? '-' : '') + money(Math.abs(num(v))); }
+  // 按可用宽度自适应缩小字号，避免长数字（如 4 位底价、大额金额）溢出
+  function fitText(ctx, str, size, weight, maxW, minSize){
+    var s = size;
+    str = String(str);
+    while (s > (minSize || 13)){
+      setFont(ctx, s, weight);
+      if (ctx.measureText(str).width <= maxW) break;
+      s -= 1;
+    }
+    return s;
+  }
+
+  function paintReceipt(ctx, W, plan, meta, dry){
+    var pad = 36, CW = W - pad * 2, y = 0;
+    var INK = '#1b1c1f', INK2 = '#5b6169', INK3 = '#9aa0a8', LINE = '#eceef2', BRAND = '#b8121f';
+
+    function text(str, x, yy, size, weight, color, align){
+      if (dry) return;
+      setFont(ctx, size, weight); ctx.fillStyle = color || INK;
+      ctx.textAlign = align || 'left'; ctx.textBaseline = 'alphabetic';
+      ctx.fillText(String(str), x, yy);
+    }
+    function box(x, yy, w, h, fill, r, stroke){
+      if (dry) return;
+      if (fill){ ctx.fillStyle = fill; rrect(ctx, x, yy, w, h, r || 0); ctx.fill(); }
+      if (stroke){ ctx.strokeStyle = stroke; ctx.lineWidth = 1; rrect(ctx, x, yy, w, h, r || 0); ctx.stroke(); }
+    }
+    function hr(yy){
+      if (dry) return;
+      ctx.strokeStyle = LINE; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad, yy); ctx.lineTo(W - pad, yy); ctx.stroke();
+    }
+
+    // ===== 顶部标题区：小标题 + 客户名(左) + 备注框(右) =====
+    var TITLE_BOTTOM = 68;          // 小标题与金线占用的高度
+    var CONTENT_TOP = TITLE_BOTTOM + 26;
+    var BOTTOM_PAD = 26;
+    var GAP_X = 26;                 // 客户名与备注框之间的最小间隔
+    var NOTE_PAD_X = 14, NOTE_PAD_Y = 9;   // 备注框内边距
+
+    var nameFull = '客户：' + (meta.customer || '—');
+    var noteFull = meta.note ? ('备注：' + String(meta.note)) : '';
+
+    // 测量必须用「将来真正绘制时的同一字体」，否则换行判断会失真
+    function mName(sz){ setFont(ctx, sz, 700); return ctx.measureText(nameFull).width; }
+    function mNote(sz){ setFont(ctx, sz, 400); return ctx.measureText(noteFull).width; }
+
+    // ---- ① 先给客户名定字号（客户名是主角：按备注「实际需要」的宽度预留，尽量保持一行）----
+    var noteMaxTextW = Math.round(CW * 0.40);              // 备注文字最多占的宽度
+    var noteReserve = noteFull ? Math.min(mNote(24), noteMaxTextW) + NOTE_PAD_X * 2 : 0;
+    var nameSize = 38;
+    var availNameW = CW - (noteReserve ? noteReserve + GAP_X : 0);
+    while (nameSize > 23 && mName(nameSize) > availNameW) nameSize -= 1;
+    setFont(ctx, nameSize, 700);
+    var nameLines = wrapLines(ctx, nameFull, availNameW, 2);
+
+    // ---- ② 再定备注字号：不超过「客户名字号-2」以保持层级；文字越多字号越小、自动换行 ----
+    var noteSize = Math.min(24, nameSize - 2), noteLines = [], noteTextW = 0;
+    if (noteFull){
+      while (noteSize > 15){                                // 15~24px 自适应，尽量不超过 2 行
+        setFont(ctx, noteSize, 400);
+        noteLines = wrapLines(ctx, noteFull, noteMaxTextW, 99);
+        if (noteLines.length <= 2) break;
+        noteSize -= 1;
+      }
+      setFont(ctx, noteSize, 400);
+      noteLines = wrapLines(ctx, noteFull, noteMaxTextW, 3);
+      noteLines.forEach(function(ln){ noteTextW = Math.max(noteTextW, ctx.measureText(ln).width); });
+    }
+    var noteLH = Math.round(noteSize * 1.45);
+    var boxW = noteLines.length ? Math.ceil(noteTextW) + NOTE_PAD_X * 2 : 0;
+    var boxH = noteLines.length ? noteLines.length * noteLH + NOTE_PAD_Y * 2 : 0;
+
+    var nameLH = Math.round(nameSize * 1.24);
+    var leftH = nameLines.length * nameLH;
+    var BOX_MARGIN = 28;                                   // 备注框上下至少留的呼吸空间
+    // 红底高度：容得下客户名，同时让备注框能上下对称地舒展开
+    var hh = Math.max(CONTENT_TOP + leftH + BOTTOM_PAD,
+                      boxH ? boxH + BOX_MARGIN * 2 : 0);
+
+    if (!dry){
+      var g = ctx.createLinearGradient(0, 0, W, hh);
+      g.addColorStop(0, '#8c1119'); g.addColorStop(.55, '#b8121f'); g.addColorStop(1, '#7d0d15');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, hh);
+    }
+    text('底价对账单', pad, 42, 25, 700, 'rgba(255,255,255,.62)');
+    box(pad, 54, 44, 5, '#e6bd63', 3);
+
+    // 客户名（左对齐，位于小标题下方、纵向居中，可 1~2 行）
+    var nameTop = CONTENT_TOP + Math.max(0, Math.round((hh - BOTTOM_PAD - CONTENT_TOP - leftH) / 2));
+    var nameBase = nameTop + Math.round(nameSize * 0.82);
+    nameLines.forEach(function(ln, li){
+      text(ln, pad, nameBase + li * nameLH, nameSize, 700, '#ffffff');
+    });
+
+    // 备注框（右侧，宽高随文字自动伸缩；在整个红底上垂直居中 → 文字多时向上、向下同时扩大）
+    if (noteLines.length){
+      var bx = W - pad - boxW;
+      var by = Math.round((hh - boxH) / 2);
+      box(bx, by, boxW, boxH, 'rgba(255,255,255,.13)', 12, 'rgba(255,255,255,.32)');
+      noteLines.forEach(function(ln, li){
+        text(ln, bx + NOTE_PAD_X, by + NOTE_PAD_Y + Math.round(noteSize * 0.86) + li * noteLH,
+             noteSize, 400, '#ffffff', 'left');
+      });
+    }
+    y = hh;
+
+    // 三个关键指标
+    y += 26;
+    var kw = (CW - 20) / 3, kh = 98;
+    [['客户付款金额', moneyPrec(plan.payment), BRAND],
+     ['综合折扣', pct(plan.rate), INK],
+     ['到手总瓶数', plan.totalBottles + ' 瓶', INK]].forEach(function(k, i){
+      var x = pad + i * (kw + 10);
+      box(x, y, kw, kh, '#f7f8fa', 14, LINE);
+      text(k[0], x + 16, y + 36, 19, 400, INK3);
+      text(k[1], x + 16, y + 76, fitText(ctx, k[1], 30, 700, kw - 32, 18), 700, k[2]);
+    });
+    y += kh + 18;
+
+    text('拿货合计 ' + moneyPrec(plan.purchaseTotal), pad, y + 20, 20, 400, INK2);
+    text('赠送货值 ' + moneyPrec(plan.giftValue), pad + CW / 2, y + 20, 20, 400, INK2, 'center');
+    text('开票总值 ' + moneyPrec(plan.invoiceTotal), W - pad, y + 20, 20, 400, INK2, 'right');
+    y += 42;
+
+    // 明细表
+    var cols = [
+      { t:'产品',     w:152, a:'left',  pad:14, fs:16 },
+      { t:'拿货箱',   w:68,  a:'right', pad:14, fs:16 },
+      { t:'赠送瓶',   w:68,  a:'right', pad:14, fs:16 },
+      { t:'合计',     w:96,  a:'right', pad:14, fs:16 },
+      { t:'开票价',   w:84,  a:'right', pad:10, fs:16 },
+      { t:'底价',     w:88,  a:'right', pad:10, fs:16 },
+      { t:'底价金额', w:90,  a:'right', pad:10, fs:16 }
+    ];
+    var xs = [], acc = pad;
+    cols.forEach(function(c){ xs.push(acc); acc += c.w; });
+
+    var hdrH = 54;
+    box(pad, y, CW, hdrH, '#f2f3f6', 12);
+    cols.forEach(function(c, i){
+      var hw = c.w - c.pad * 2;
+      text(c.t, c.a === 'right' ? xs[i] + c.w - c.pad : xs[i] + c.pad, y + 35,
+           fitText(ctx, c.t, c.fs, 600, c.a === 'right' ? hw : c.w - c.pad - 6, 13), 600, INK2, c.a);
+    });
+    y += hdrH;
+
+    plan.items.forEach(function(it, idx){
+      setFont(ctx, 23, 600);
+      var nameLines = wrapLines(ctx, it.name, cols[0].w - 28, 2);
+      var bits = [];
+      if (it.spec > 1) bits.push(it.spec + '瓶/箱');
+      if (it.degree) bits.push(it.degree);
+      if (it.volume) bits.push(it.volume);
+      setFont(ctx, 16, 400);
+      var subLines = bits.length ? wrapLines(ctx, bits.join(' · '), cols[0].w - 28, 1) : [];
+      var rowH = 20 + nameLines.length * 30 + subLines.length * 22 + 18;
+      if (!dry && idx % 2 === 1) box(pad, y, CW, rowH, '#fafbfd', 0);
+      var ty = y + 40;
+      nameLines.forEach(function(ln, li){ text(ln, pad + cols[0].pad, ty + li * 30, 23, 600, INK); });
+      subLines.forEach(function(ln, li){ text(ln, pad + cols[0].pad, ty + nameLines.length * 30 + li * 22, 16, 400, INK3); });
+      function cell(str, ci, size, weight, color){
+        var maxW = cols[ci].w - cols[ci].pad * 2;
+        text(str, xs[ci] + cols[ci].w - cols[ci].pad, ty, fitText(ctx, str, size, weight, maxW, 13), weight, color, 'right');
+      }
+      cell(it.pBoxes ? it.pBoxes : '—', 1, 20, 400, it.pBoxes ? INK : INK3);
+      cell(it.gBottles ? it.gBottles : '—', 2, 20, 400, it.gBottles ? INK : INK3);
+      cell(boxBottleText(it.qty, it.spec), 3, 20, 600, INK);
+      cell(plain(it.price), 4, 20, 400, INK2);
+      cell(bp(it.bottom, plan.precision), 5, 22, 700, BRAND);
+      cell(round2(it.allocated).toLocaleString('zh-CN', { minimumFractionDigits:2, maximumFractionDigits:2 }), 6, 19, 600, INK);
+      y += rowH;
+      hr(y);
+    });
+
+    // 合计
+    y += 12;
+    box(pad, y, CW, 64, '#fff7f7', 12, '#f6e3e3');
+    text('按底价合计（每瓶底价 × 到手数量）', pad + 16, y + 40, 20, 600, INK2);
+    text(moneyPrec(plan.sumByBottom), W - pad - 16, y + 43, fitText(ctx, moneyPrec(plan.sumByBottom), 27, 700, 240, 18), 700, BRAND, 'right');
+    y += 82;
+
+    // 验算结论
+    var vh = 138;
+    var c = plan.exact ? ['#e9f7ef', '#0b6b3d', '#0f9d58'] : plan.pass ? ['#fff5e5', '#8a5300', '#e8a33d'] : ['#fdecec', '#a5201a', '#d93025'];
+    box(pad, y, CW, vh, c[0], 14);
+    box(pad, y, 8, vh, c[2], 4);
+    text(plan.exact ? '✔ 验算通过' : plan.pass ? '⚠ 验算通过（含尾差）' : '✘ 验算不通过', pad + 26, y + 42, 25, 700, c[1]);
+    text('到手 ' + plan.totalBottles + ' 瓶 × 各自底价 = ' + moneyPrec(plan.sumByBottom), pad + 26, y + 80, 20, 400, c[1]);
+    text('客户付款 ' + moneyPrec(plan.payment) + '　差额 ' + signMoney(plan.diff) + '　允许尾差 ' + moneyPrec(plan.tolerance), pad + 26, y + 112, 20, 400, c[1]);
+    y += vh + 26;
+
+    text('生成时间 ' + meta.stamp, W / 2, y + 8, 18, 400, INK3, 'center');
+    text('本程序由YUAN提供，数据以双方最终确认为准', W / 2, y + 34, 18, 400, INK3, 'center');
+    y += 62;
+    return Math.ceil(y);
+  }
+
+  function buildReceiptCanvas(plan, meta){
+    var W = 720, S = 2;
+    var probe = document.createElement('canvas').getContext('2d');
+    var h = paintReceipt(probe, W, plan, meta, true);
+    var cv = document.createElement('canvas');
+    cv.width = W * S; cv.height = h * S;
+    var ctx = cv.getContext('2d');
+    ctx.scale(S, S);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, h);
+    paintReceipt(ctx, W, plan, meta, false);
+    return cv;
+  }
+
+  function receiptMeta(rec){
+    var d = new Date();
+    var p2 = function(n){ return String(n).padStart(2, '0'); };
+    return {
+      customer: String((rec ? rec.customer : draft.customer) || '').trim(),
+      note: String((rec ? rec.note : draft.note) || '').trim(),
+      date: d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()),
+      stamp: d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()) + ' ' + p2(d.getHours()) + ':' + p2(d.getMinutes())
+    };
+  }
+  function receiptFileName(meta){
+    return '底价对账单' + (meta.customer ? '-' + meta.customer : '') + '-' + meta.date + '.png';
+  }
+  function canvasToBlob(cv){
+    return new Promise(function(res){
+      if (cv.toBlob){ cv.toBlob(function(b){ res(b); }, 'image/png'); return; }
+      try {
+        var data = cv.toDataURL('image/png'), bin = atob(data.split(',')[1]), arr = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        res(new Blob([arr], { type:'image/png' }));
+      } catch(e){ res(null); }
+    });
+  }
+  function downloadBlob(blob, name){
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = name; a.rel = 'noopener';
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+  }
+  function showReceipt(plan, meta){
+    var cv;
+    try { cv = buildReceiptCanvas(plan, meta); }
+    catch(e){ return toast('图片生成失败：' + (e && e.message ? e.message : '未知错误')); }
+    var name = receiptFileName(meta);
+    canvasToBlob(cv).then(function(blob){
+      if (!blob) return toast('图片生成失败，请重试');
+      var url = trackURL(URL.createObjectURL(blob));
+      sheet('对账单长图',
+        '<p class="hint" style="margin:0 0 10px">长按图片可保存到相册；点「保存图片」下载；点「分享」可直接发给客户或群。</p>' +
+        '<div class="imgwrap"><img src="' + url + '" alt="底价对账单" /></div>',
+        '<button class="btn ghost ft4" data-act="closelayer">关闭</button>' +
+        '<button class="btn ghost ft4" data-act="sharecopy">复制文案</button>' +
+        '<button class="btn primary ft4" id="rcSave">保存图片</button>' +
+        '<button class="btn gold ft4" id="rcShare" style="display:none">分享</button>',
+        function(root){
+          root.querySelector('#rcSave').addEventListener('click', function(){
+            downloadBlob(blob, name);
+            toast('已保存图片，可在相册/下载中查看');
+          });
+          var file = null;
+          try { file = new File([blob], name, { type:'image/png' }); } catch(e){ file = null; }
+          if (file && navigator.canShare && navigator.canShare({ files:[file] })){
+            var sh = root.querySelector('#rcShare');
+            sh.style.display = '';
+            sh.addEventListener('click', function(){
+              navigator.share({ files:[file], title:'底价对账单' + (meta.customer ? ' · ' + meta.customer : '') })
+                .catch(function(){ /* 用户取消 */ });
+            });
+          } else if (navigator.share){
+            var sh2 = root.querySelector('#rcShare');
+            sh2.style.display = '';
+            sh2.addEventListener('click', function(){
+              navigator.share({ title:'底价对账单', text: planText(plan, meta) }).catch(function(){});
+            });
+          }
+        });
+    });
+  }
+
+  /* ---------------- 复制结果 ---------------- */
+  function planText(planIn, metaIn){
+    var plan = planIn || currentPlan();
+    if (!plan.hasData) return '';
+    var cust = metaIn ? metaIn.customer : (draft.customer || '').trim();
+    var note = metaIn ? metaIn.note : (draft.note || '').trim();
+    var L = [];
+    L.push('【底价对账单】' + new Date().toLocaleString('zh-CN', { hour12:false }));
+    if (cust) L.push('客户：' + cust);
+    if (note) L.push('备注：' + note);
+    L.push('客户付款金额：' + moneyPrec(plan.payment) + '（综合折扣 ' + pct(plan.rate) + '）');
+    if (plan.purchaseTotal) L.push('拿货合计：' + money(plan.purchaseTotal) + '　赠送货值：' + money(plan.giftValue));
+    L.push('');
+    L.push('— 产品底价 —');
+    plan.items.forEach(function(it){
+      L.push(it.name + '：底价 ' + bp(it.bottom, plan.precision) + ' 元/瓶 × ' + it.qty + '瓶 = ' + money(it.allocated) +
+        '（拿货 ' + (it.pBoxes ? it.pBoxes + '箱' : '0') + ' / 赠送 ' + it.gBottles + '瓶）');
+    });
+    L.push('');
+    L.push('验算：按底价合计 ' + moneyPrec(plan.sumByBottom) + '，与客户付款差额 ' + moneyPrec(plan.diff) +
+      '，' + (plan.exact ? '完全一致 ✅' : plan.pass ? '在允许尾差 ' + moneyPrec(plan.tolerance) + ' 内 ✅' : '不通过 ❌'));
+    return L.join('\n');
+  }
+  /* 通用复制 */
+  function copyPlain(txt, okMsg){
+    function fallback(){
+      var ta = document.createElement('textarea');
+      ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); toast(okMsg); }
+      catch(e){ toast('复制失败，请长按选择文本'); }
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      var settled = false;
+      var timer = setTimeout(function(){ if (!settled){ settled = true; fallback(); } }, 800);
+      navigator.clipboard.writeText(txt).then(function(){
+        if (settled) return; settled = true; clearTimeout(timer); toast(okMsg);
+      }, function(){
+        if (settled) return; settled = true; clearTimeout(timer); fallback();
+      });
+    } else fallback();
+  }
+  function copyPlan(){
+    var txt = planText();
+    if (!txt) return toast('暂无可复制的内容');
+    copyPlain(txt, '已复制到剪贴板');
+  }
+
+  /* ===== SHARE MODULE START ===== */
+  // 与小程序版同一套分享文案逻辑（改这里记得同步 小程序版/pages/index/index.js）
+  function shortItems(plan, max){
+    max = max || 3;
+    var arr = plan.items.slice(0, max).map(function(it){ return it.name + ' ' + bp(it.bottom, plan.precision) + '元/瓶'; });
+    var out = arr.join('、');
+    if (plan.items.length > max) out += ' 等' + plan.items.length + '种产品';
+    return out;
+  }
+  function goodsDesc(plan){
+    return plan.items.map(function(it){
+      var parts = [];
+      if (it.pBoxes) parts.push(it.pBoxes + '箱');
+      if (it.gBottles) parts.push('赠' + it.gBottles + '瓶');
+      return it.name + (parts.length ? '(' + parts.join('+') + ')' : '');
+    }).join('、');
+  }
+  function shareCopy(plan, meta, style){
+    var who = meta.customer ? meta.customer + '，' : '';
+    var pay = moneyPrec(plan.payment);
+    var rate = pct(plan.rate);              // 已含 %，拼接时不要再加
+    var hasGift = plan.giftBottles > 0;
+    if (style === 3){
+      return who + '这次的政策底价我帮您算好了：' + shortItems(plan, 3) +
+        '。货款合计 ' + pay + '（综合折扣 ' + rate + (hasGift ? '，赠品已包含在内' : '') + '），' +
+        '明细见对账单图片。确认无误我就按这个安排发货～';
+    }
+    if (style === 2){
+      return who + '本次配货：' + goodsDesc(plan) + '；客户付款 ' + pay +
+        '，综合折扣 ' + rate + '。' + shortItems(plan, 3) + '，明细见图～';
+    }
+    return who + '您好，这是本次对账：' + goodsDesc(plan) + '；客户付款金额 ' + pay +
+      '，综合折扣 ' + rate + '。各产品底价：' + shortItems(plan, 4) +
+      '。请核对，如有出入随时联系我。';
+  }
+  var SHARE_STYLES = ['正式对账版', '简洁版', '促成成交版'];
+  /* ===== SHARE MODULE END ===== */
+
+  /* 一键复制分享文案：列出三种口吻，点哪段复制哪段 */
+  function shareCopySheet(){
+    var plan = currentPlan();
+    if (!plan.hasData) return toast('请先录入拿货或赠送产品');
+    var meta = receiptMeta(null);
+    var body = SHARE_STYLES.map(function(name, i){
+      var t = shareCopy(plan, meta, i + 1);
+      return '<div class="cpcard"><div class="cphd">' + esc(name) + '（' + t.length + ' 字）</div>' +
+        '<div class="cptx">' + esc(t) + '</div>' +
+        '<button class="btn sm primary block" data-act="copyshare" data-style="' + (i + 1) + '">复制这段</button></div>';
+    }).join('');
+    sheet('一键复制分享文案', '<p class="hint" style="margin:0 0 12px">选一段复制，连对账单图片一起发给客户即可。</p>' + body, '');
+  }
+
+  /* ---------------- 首次使用引导 ---------------- */
+  var GUIDE_KEY = 'bjdj.guide.v1';
+  function needGuide(){
+    try { return !localStorage.getItem(GUIDE_KEY); } catch(e){ return false; }
+  }
+  function markGuideDone(){
+    try { localStorage.setItem(GUIDE_KEY, '1'); } catch(e){}
+  }
+  function guideSheet(){
+    sheet('3 步就能用起来',
+      '<div class="gstep"><div class="num">1</div><div><div class="st">先建产品库</div>' +
+        '<div class="sd">把每个酒的<b>规格</b>（一箱几瓶）和<b>开票价</b>（单瓶价格）填进去，只填一次，以后直接用。</div></div></div>' +
+      '<div class="gstep"><div class="num">2</div><div><div class="st">录拿货和赠送</div>' +
+        '<div class="sd">选产品、填箱数或瓶数，金额自动算；数量框右边的 ▲▼ 点一下加减 1，<b>按住可连加</b>。</div></div></div>' +
+      '<div class="gstep"><div class="num">3</div><div><div class="st">出底价、发客户</div>' +
+        '<div class="sd">自动分摊出每个产品的底价并验算；点「生成对账单长图」，再用<b>分享文案</b>复制一段话连图一起发给客户。</div></div></div>' +
+      '<p class="hint">数据只保存在你手机浏览器本地，不上传服务器；换手机前可用「产品库 → 导出全部数据」备份。</p>',
+      '<button class="btn primary block" data-act="guideclose">开始使用</button>');
+  }
+
+  /* ---------------- Tab ---------------- */
+  var TITLES = {
+    calc: ['底价计算', '终端拿货 · 赠送 · 产品底价 · 自动验算'],
+    lib:  ['产品库', '维护产品名称 / 规格 / 开票价 / 度数 / 容量'],
+    rec:  ['计算记录', '保存、重命名、载入你的每一次测算']
+  };
+  function switchTab(tab){
+    document.querySelectorAll('.tabbar button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-tab') === tab); });
+    document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('on'); });
+    var v = document.getElementById('view-' + tab);
+    if (v) v.classList.add('on');
+    document.getElementById('pageTitle').textContent = TITLES[tab][0];
+    document.getElementById('pageSub').textContent = TITLES[tab][1];
+    window.scrollTo({ top:0, behavior:'instant' in window ? 'instant' : 'auto' });
+    if (tab === 'lib') renderLib();
+    if (tab === 'rec') renderRecords();
+    if (tab === 'calc') renderCalc();
+  }
+  function updateTabBadge(){
+    var b = document.querySelector('.tabbar button[data-tab="rec"]');
+    var old = b.querySelector('.badge'); if (old) old.remove();
+    if (records.length){
+      var s = document.createElement('span');
+      s.className = 'badge'; s.textContent = records.length > 99 ? '99+' : records.length;
+      s.style.position = 'absolute';
+      b.style.position = 'relative';
+      b.appendChild(s);
+    }
+  }
+
+  /* ---------------- 事件 ---------------- */
+  /* 数量增减按钮：点按 ±1，长按连加/连减 */
+  var lastStepAt = 0, holdTimer = null, repeatTimer = null;
+  document.addEventListener('pointerdown', function(e){
+    var b = e.target.closest && e.target.closest('[data-act="inc"],[data-act="dec"]');
+    if (!b) return;
+    e.preventDefault();                       // 阻止随后的兼容性 click，避免重复加一次
+    lastStepAt = Date.now();
+    var kind = b.getAttribute('data-kind'), rid = b.getAttribute('data-rid');
+    var dir = b.getAttribute('data-act') === 'inc' ? 1 : -1;
+    bumpQty(kind, rid, dir);
+    clearTimeout(holdTimer); clearInterval(repeatTimer);
+    holdTimer = setTimeout(function(){
+      repeatTimer = setInterval(function(){ bumpQty(kind, rid, dir); }, 80);
+    }, 420);
+    function stop(){
+      clearTimeout(holdTimer); clearInterval(repeatTimer);
+      document.removeEventListener('pointerup', stop);
+      document.removeEventListener('pointercancel', stop);
+    }
+    document.addEventListener('pointerup', stop);
+    document.addEventListener('pointercancel', stop);
+  }, { passive:false });
+
+  /* 算式符号快捷键：按下时不让按钮抢走输入框焦点（否则光标丢失、输入法收起） */
+  document.addEventListener('mousedown', function(e){
+    var k = e.target.closest && e.target.closest('[data-k]');
+    if (k) e.preventDefault();
+  });
+
+  /* 点到算式区以外的地方就收起输入法（点符号键除外，方便连续输入） */
+  document.addEventListener('pointerdown', function(e){
+    var el = document.getElementById('exprInput');
+    if (!el || document.activeElement !== el) return;
+    var t = e.target;
+    if (t === el) return;
+    if (t.closest && (t.closest('[data-k]') || t.closest('#exprWrap'))) return;
+    el.blur();
+  }, { passive:true });
+
+  document.addEventListener('click', function(e){
+    var kbtn = e.target.closest('[data-k]');
+    if (kbtn){ insertExpr(kbtn.getAttribute('data-k')); return; }
+    var el = e.target.closest('[data-act]');
+    if (el){
+      var act = el.getAttribute('data-act');
+      var rid = el.getAttribute('data-rid');
+      var kind = el.getAttribute('data-kind');
+      if (act === 'addrow'){
+        var row = newRow(kind);
+        (kind === 'p' ? draft.purchases : draft.gifts).push(row);
+        saveDraft(); renderRows(kind); renderCalc();
+        var inp = document.querySelector('input[data-rid="' + row.rid + '"]');
+        if (inp) inp.value = row.qty;
+        return;
+      }
+      if (act === 'delrow'){
+        var list = kind === 'p' ? draft.purchases : draft.gifts;
+        draft[kind === 'p' ? 'purchases' : 'gifts'] = list.filter(function(r){ return r.rid !== rid; });
+        saveDraft(); renderCalc(); return;
+      }
+      if (act === 'pick'){ pickerSheet(kind, rid); return; }
+      if (act === 'inc' || act === 'dec'){
+        // 指针按下时已在 pointerdown 中处理，这里只负责键盘（Enter/空格）触发
+        if (Date.now() - lastStepAt < 800) return;
+        bumpQty(kind, rid, act === 'inc' ? 1 : -1);
+        return;
+      }
+      if (act === 'save'){ saveRecord(); return; }
+      if (act === 'image'){
+        var ip = currentPlan();
+        if (!ip.hasData) return toast('请先添加有效的拿货或赠送产品');
+        showReceipt(ip, receiptMeta(null));
+        return;
+      }
+      if (act === 'recImage'){
+        var rimg = records.filter(function(x){ return x.id === el.getAttribute('data-id'); })[0];
+        if (!rimg) return;
+        var rplan = computePlan(rimg.purchases || [], rimg.gifts || [], rimg.customPay ? rimg.pay : '',
+          { precision: (rimg.summary && rimg.summary.precision) || settings.precision });
+        if (!rplan.hasData) return toast('这条记录没有可用数据');
+        showReceipt(rplan, receiptMeta(rimg));
+        return;
+      }
+      if (act === 'copy'){ copyPlan(); return; }
+      if (act === 'sharecopy'){ shareCopySheet(); return; }
+      if (act === 'copyshare'){
+        var plan = currentPlan();
+        var meta = receiptMeta(null);
+        var txt = shareCopy(plan, meta, parseInt(el.getAttribute('data-style'), 10) || 1);
+        copyPlain(txt, '已复制，粘贴发给客户');
+        return;
+      }
+      if (act === 'guide'){ guideSheet(); return; }
+      if (act === 'guideclose'){ markGuideDone(); closeLayer(); return; }
+      if (act === 'evalExpr'){ runExpr(); return; }
+      if (act === 'clear'){
+        confirmDlg('清空当前计算', '将清除当前录入的客户信息、拿货与赠送产品（产品库和已保存记录不受影响）。', '清空').then(function(ok){
+          if (!ok) return;
+          draft = { purchases:[newRow('p')], gifts:[newRow('g')], customPay:false, pay:'', customer:'', note:'', expr:'' };
+          saveDraft();
+          document.getElementById('payCustom').checked = false;
+          exprResultEl('支持 <b>+ − × ÷ ( )</b> 和百分号 <b>%</b>（97% 即 0.97）。点「＝ 计算」把结果填进上方的付款金额。', true);
+          document.getElementById('custName').value = '';
+          document.getElementById('noteInput').value = '';
+          renderCalc(); toast('已清空');
+        });
+        return;
+      }
+      if (act === 'newProd'){ productSheet(null); return; }
+      if (act === 'editProd'){ productSheet(el.getAttribute('data-id')); return; }
+      if (act === 'bulkProd'){ bulkSheet(); return; }
+      if (act === 'delProd'){
+        var p = findProduct(el.getAttribute('data-id'));
+        if (!p) return;
+        confirmDlg('删除产品', '确定删除「' + p.name + '」？已保存的记录不受影响。', '删除').then(function(ok){
+          if (!ok) return;
+          products = products.filter(function(x){ return x.id !== p.id; });
+          store(K.P, products); renderLib(); renderCalc(); toast('已删除');
+        });
+        return;
+      }
+      if (act === 'exportAll'){ exportAll(); return; }
+      if (act === 'importAll'){ importAll(); return; }
+      if (act === 'loadRec'){
+        var r = records.filter(function(x){ return x.id === el.getAttribute('data-id'); })[0];
+        if (!r) return;
+        confirmDlg('载入记录', '将用「' + r.name + '」覆盖当前计算页内容，继续？', '载入').then(function(ok){
+          if (!ok) return;
+          draft = {
+            purchases: (r.purchases || []).map(function(x){ var n = newRow('p'); n.productId = x.productId || ''; n.name = x.name; n.spec = x.spec; n.price = x.price; n.qty = x.qty; n.degree = x.degree || ''; n.volume = x.volume || ''; return n; }),
+            gifts: (r.gifts || []).map(function(x){ var n = newRow('g'); n.productId = x.productId || ''; n.name = x.name; n.spec = x.spec; n.price = x.price; n.qty = x.qty; n.degree = x.degree || ''; n.volume = x.volume || ''; return n; }),
+            customPay: !!r.customPay, pay: r.pay || '',
+            customer: r.customer || '', note: r.note || '',
+            expr: r.expr || ''
+          };
+          if (!draft.purchases.length) draft.purchases = [newRow('p')];
+          if (!draft.gifts.length) draft.gifts = [newRow('g')];
+          if (r.summary && [2,3,4].indexOf(r.summary.precision) >= 0) settings.precision = r.summary.precision;
+          syncPrecSeg();
+          saveDraft(); store(K.S, settings);
+          syncPayUI();
+          syncMetaInputs();
+          switchTab('calc'); toast('已载入「' + r.name + '」');
+        });
+        return;
+      }
+      if (act === 'renameRec'){
+        var rr = records.filter(function(x){ return x.id === el.getAttribute('data-id'); })[0];
+        if (!rr) return;
+        promptDlg('重命名记录', rr.name, '给这次计算起个名字').then(function(v){
+          if (v == null) return;
+          if (!v){ toast('名称不能为空'); return; }
+          rr.name = v; rr.updatedAt = Date.now();
+          store(K.R, records); renderRecords(); toast('已重命名');
+        });
+        return;
+      }
+      if (act === 'delRec'){
+        var rd = records.filter(function(x){ return x.id === el.getAttribute('data-id'); })[0];
+        if (!rd) return;
+        confirmDlg('删除记录', '确定删除「' + rd.name + '」？该操作不可恢复。', '删除').then(function(ok){
+          if (!ok) return;
+          records = records.filter(function(x){ return x.id !== rd.id; });
+          store(K.R, records); renderRecords(); updateTabBadge(); toast('已删除');
+        });
+        return;
+      }
+    }
+    var tabBtn = e.target.closest('[data-tab]');
+    if (tabBtn){ switchTab(tabBtn.getAttribute('data-tab')); return; }
+    var precBtn = e.target.closest('[data-prec]');
+    if (precBtn){
+      settings.precision = parseInt(precBtn.getAttribute('data-prec'), 10) || 2;
+      store(K.S, settings); syncPrecSeg(); renderCalc(); return;
+    }
+  });
+
+  document.addEventListener('input', function(e){
+    var t = e.target;
+    if (t.hasAttribute && t.hasAttribute('data-qty')){
+      applyQty(t.getAttribute('data-qty'), t.getAttribute('data-rid'), t.value);
+      return;
+    }
+    if (t.id === 'payInput'){
+      draft.pay = t.value.replace(/[^\d.]/g, '');
+      saveDraft();
+      var pl = currentPlan();
+      renderResult(pl); renderVerify(pl);
+      return;
+    }
+    if (t.id === 'exprInput'){ draft.expr = t.value; saveDraft(); return; }
+    if (t.id === 'custName'){ draft.customer = t.value; saveDraft(); return; }
+    if (t.id === 'noteInput'){ draft.note = t.value; saveDraft(); return; }
+    if (t.id === 'libSearch'){ renderLib(); return; }
+    if (t.id === 'recSearch'){ renderRecords(); return; }
+  });
+
+  document.getElementById('payCustom').addEventListener('change', function(e){
+    draft.customPay = e.target.checked;
+    if (draft.customPay && !draft.pay){
+      draft.pay = plain(currentPlan().purchaseTotal);
+    }
+    saveDraft();
+    var plan = renderCalc();
+    syncPayUI();
+    void plan;
+  });
+
+  // 算式框里按回车 = 点「＝ 计算」
+  document.getElementById('exprInput').addEventListener('keydown', function(e){
+    if (e.key === 'Enter'){ e.preventDefault(); runExpr(); }
+  });
+
+  function syncPrecSeg(){
+    document.querySelectorAll('#precSeg button').forEach(function(b){
+      b.classList.toggle('on', parseInt(b.getAttribute('data-prec'), 10) === settings.precision);
+    });
+  }
+
+  /* ---------------- 启动 ---------------- */
+  function syncMetaInputs(){
+    document.getElementById('custName').value = draft.customer || '';
+    document.getElementById('noteInput').value = draft.note || '';
+  }
+  function init(){
+    syncPayUI();
+    syncMetaInputs();
+    syncPrecSeg();
+    renderCalc();
+    renderLib();
+    renderRecords();
+    updateTabBadge();
+    // 首次进入自动弹引导；但如果用户手快已经点开了别的弹层，就不打扰他
+    if (needGuide()) setTimeout(function(){ if (!layer.innerHTML) guideSheet(); }, 400);
+  }
+  init();
+
+  // 暴露给测试
+  window.__bjdj = { computePlan:computePlan, num:num, round2:round2, evalExpr:evalExpr, resText:resText,
+                    moneyPrec:moneyPrec, runExpr:runExpr, products:function(){ return products; } };
+})();
+</script>
+</body>
+</html>
