@@ -73,6 +73,10 @@
   ::placeholder{color:#b3b9c2}
   .field{margin-bottom:10px}
   .field label{display:block;font-size:12.5px;color:var(--ink2);margin:0 0 5px 2px;font-weight:500}
+  /* 横向字段：标签与输入框同一行（客户名称 / 备注） */
+  .field.row{display:flex;align-items:center;gap:10px}
+  .field.row > label{display:block;margin:0;flex:0 0 auto;min-width:58px;font-size:13px}
+  .field.row > input,.field.row > .inputrow{flex:1 1 auto;min-width:0}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
   .hint{margin:8px 2px 0;font-size:11.5px;color:var(--ink3);line-height:1.6}
@@ -137,9 +141,11 @@
   /* ---------------- 底价结果 ---------------- */
   .res{border:1px solid var(--line);border-radius:14px;padding:11px 12px;margin-bottom:9px;background:#fff}
   .res:last-child{margin-bottom:0}
-  .res-hd{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px}
-  .res-hd .rn{font-size:14.5px;font-weight:680;flex:1;min-width:0;word-break:break-all}
-  .res-hd .rs{font-size:11px;color:var(--ink3);margin-top:3px;font-weight:400}
+  /* 产品名称与信息小字同一行：名称优先完整，小字占剩余空间并单行省略 */
+  .res-hd{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+  .res-hd .rn{font-size:14.5px;font-weight:680;flex:0 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .res-hd .rs{font-size:11px;color:var(--ink3);font-weight:400;flex:1 1 auto;min-width:0;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0}
   .res-price{display:flex;align-items:baseline;gap:6px;background:linear-gradient(135deg,#fff7f7,#fffaf2);
     border:1px solid #f6e3e3;border-radius:11px;padding:8px 10px;margin-bottom:8px}
   .res-price .lb{font-size:11.5px;color:var(--ink2)}
@@ -167,12 +173,16 @@
   .status.bad{background:var(--badbg);color:#a5201a}
   .status b{font-weight:700}
   /* ---------------- 分段控件 ---------------- */
-  .seg{display:inline-flex;background:#f0f1f5;border-radius:10px;padding:2px;margin-left:auto}
-  .seg button{border:none;background:none;font-family:inherit;font-size:12px;font-weight:600;color:var(--ink2);
-    padding:5px 9px;border-radius:8px;cursor:pointer}
-  .seg button.on{background:#fff;color:var(--brand);box-shadow:0 1px 3px rgba(15,23,42,.12)}
+  .seg{display:inline-flex;background:#eceef3;border-radius:10px;padding:2px;margin-left:auto}
+  .seg button{border:none;background:none;font-family:inherit;font-size:12.5px;font-weight:600;color:#5b6169;
+    padding:5px 10px;border-radius:8px;cursor:pointer;transition:background .12s,color .12s}
+  /* 选中态：品牌红实心 + 白字，一眼可见 */
+  .seg button.on{background:var(--brand);color:#fff;box-shadow:0 2px 6px rgba(184,18,31,.35)}
   /* ---------------- 开关 ---------------- */
-  .switch{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--ink2);margin:2px 2px 10px;cursor:pointer;user-select:none}
+  /* 手动计算开关：文字在左，开关靠右 */
+  .switch{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13.5px;color:var(--ink2);
+    margin:2px 2px 10px;cursor:pointer;user-select:none}
+  .switch > span{flex:1;min-width:0}
   .switch input{appearance:none;-webkit-appearance:none;width:44px;height:26px;border-radius:999px;background:#d8dce4;
     position:relative;margin:0;flex:0 0 44px;transition:background .18s;cursor:pointer}
   .switch input::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;
@@ -204,6 +214,25 @@
   .item .t1{font-size:14.5px;font-weight:640;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .item .t2{font-size:11.5px;color:var(--ink3);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .item .acts{display:flex;gap:6px;flex:0 0 auto}
+  /* 数据库页顶部下拉（产品库 / 客户管理） */
+  .selsm{
+    height:34px;max-width:140px;border:1.5px solid var(--line2);border-radius:10px;background:#fff;
+    font-family:inherit;font-size:13.5px;font-weight:600;color:var(--ink);padding:0 8px;cursor:pointer;
+  }
+  /* 输入框 + 右侧小按钮（客户名称「选」） */
+  .inputrow{display:flex;gap:6px;align-items:center}
+  .inputrow input{flex:1;min-width:0}
+  .inputrow .pickbtn{flex:0 0 auto;height:38px;padding:0 12px;font-size:13px}
+  /* 赠送行：上行 类型下拉 + 删除；下行 产品 + 箱瓶 */
+  .rowline.g{grid-template-columns:1fr;gap:6px}
+  .gift-hd{display:flex;align-items:center;gap:6px}
+  .catlb{flex:0 0 auto;font-size:12px;color:var(--ink3);font-weight:600}
+  /* 类型下拉：品牌红描边 + 浅红底，一眼能看出是可点的选择项 */
+  .catsel{
+    flex:1;min-width:0;height:34px;border:1.5px solid rgba(184,18,31,.45);border-radius:10px;background:#fff6f6;
+    font-family:inherit;font-size:13.5px;font-weight:700;color:var(--brand);padding:0 8px;cursor:pointer;
+  }
+  .gift-body{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center}
   .chip{display:inline-block;font-size:10.5px;color:#8a6a1f;background:#fdf6e6;border-radius:5px;
     padding:1px 5px;margin-left:4px;font-weight:600;vertical-align:middle}
   .chip.b{color:#2a4d8f;background:#eef3fd}
@@ -229,7 +258,9 @@
   .chip.r{color:#a5201a;background:var(--badbg)}
   .imgwrap{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#eef0f4;padding:6px}
   .imgwrap img{display:block;width:100%;border-radius:10px;background:#fff}
-  .summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+  /* 2 个或 3 个指标都铺满整行（flex 均分，不再留空格子） */
+  .summary{display:flex;gap:8px;margin-bottom:10px}
+  .summary .kpi{flex:1 1 0;min-width:0}
   .kpi{background:linear-gradient(160deg,#fff,#fbfcfe);border:1px solid var(--line);border-radius:12px;padding:8px 9px;text-align:center}
   .kpi i{font-style:normal;display:block;font-size:10.5px;color:var(--ink3);margin-bottom:3px}
   .kpi b{font-size:14.5px;font-variant-numeric:tabular-nums;color:var(--ink);letter-spacing:.2px}
@@ -322,19 +353,20 @@
         <span class="note">填入客户名，便于按客户查记录</span>
         <button type="button" class="gbtn" data-act="guide" aria-label="使用说明">?</button></div>
       <div class="card-bd">
-        <div class="grid2">
-          <div class="field" style="margin-bottom:0"><label>客户名称</label>
-            <input id="custName" type="text" placeholder="如：张老板 / 某某烟酒店" /></div>
-          <div class="field" style="margin-bottom:0"><label>备注</label>
-            <input id="noteInput" type="text" placeholder="如：3月政策、含返利" /></div>
-        </div>
+        <div class="field row"><label>客户名称</label>
+          <div class="inputrow">
+            <input id="custName" type="text" placeholder="如：张老板 / 某某烟酒店" />
+            <button type="button" class="btn xs ghost pickbtn" data-act="pickcustomer" aria-label="从客户档案选择">选</button>
+          </div></div>
+        <div class="field row" style="margin-bottom:0"><label>备注</label>
+          <input id="noteInput" type="text" placeholder="如：3月政策、含返利" /></div>
       </div>
     </div>
 
     <div class="card">
       <div class="card-hd">
         <span class="dot"></span><h2>终端拿货产品</h2>
-        <span class="note">开票价 × 规格 × 箱数</span>
+        <span class="note">开票价 × 瓶数</span>
       </div>
       <div class="card-bd">
         <div id="purchaseRows"></div>
@@ -352,13 +384,14 @@
         <div id="giftRows"></div>
         <button class="btn dash block" data-act="addrow" data-kind="g" style="margin-top:8px">＋ 添加赠送产品</button>
         <div class="total gold"><span>合计赠送金额</span><b id="giftTotal">¥0.00</b></div>
+        <div class="hint" id="giftCatSum" style="margin-top:6px"></div>
       </div>
     </div>
 
     <div class="card">
       <div class="card-hd"><span class="dot"></span><h2>客户付款金额</h2></div>
-      <div class="card-bd">
-        <label class="switch"><input type="checkbox" id="payCustom"><span>手动指定付款金额（默认＝拿货合计）</span></label>
+      <div class="card-bd" id="payCard">
+        <label class="switch"><span>手动指定付款金额（默认＝拿货合计）</span><input type="checkbox" id="payCustom"></label>
         <div class="money">
           <span class="sym">¥</span>
           <input id="payInput" inputmode="decimal" placeholder="0.00" disabled />
@@ -414,23 +447,48 @@
     </div>
   </section>
 
-  <!-- ============ 产品库页 ============ -->
+  <!-- ============ 数据库页（产品库 / 客户管理） ============ -->
   <section class="view" id="view-lib">
     <div class="card">
-      <div class="card-hd"><span class="dot"></span><h2>产品库</h2>
-        <span class="note" id="libCount">共 0 个产品</span></div>
-      <div class="card-bd">
-        <input type="search" id="libSearch" placeholder="搜索产品名称 / 度数 / 容量" />
-        <div class="btnrow" style="margin-top:10px">
-          <button class="btn primary" data-act="newProd">＋ 新增产品</button>
-          <button class="btn ghost" data-act="bulkProd" style="flex:0 0 40%">批量导入</button>
-        </div>
+      <div class="card-hd"><span class="dot"></span><h2>数据库</h2>
+        <select id="dbViewSel" class="selsm" aria-label="切换要查看的档案">
+          <option value="prod">产品库</option>
+          <option value="cust">客户管理</option>
+        </select>
       </div>
     </div>
-    <div class="card"><div class="card-bd" id="libList"></div></div>
-    <div class="btnrow" style="margin-bottom:16px">
-      <button class="btn ghost" data-act="exportAll">导出全部数据</button>
-      <button class="btn ghost" data-act="importAll">导入数据</button>
+
+    <!-- 产品库 -->
+    <div id="dbProd">
+      <div class="card">
+        <div class="card-hd"><span class="dot grey"></span><h2>产品库</h2>
+          <span class="note" id="libCount">共 0 个产品</span></div>
+        <div class="card-bd">
+          <input type="search" id="libSearch" placeholder="搜索产品名称 / 度数 / 容量" />
+          <div class="btnrow" style="margin-top:10px">
+            <button class="btn primary" data-act="newProd">＋ 新增产品</button>
+            <button class="btn ghost" data-act="bulkProd" style="flex:0 0 40%">批量导入</button>
+          </div>
+        </div>
+      </div>
+      <div class="card"><div class="card-bd" id="libList"></div></div>
+      <div class="btnrow" style="margin-bottom:16px">
+        <button class="btn ghost" data-act="exportAll">导出全部数据</button>
+        <button class="btn ghost" data-act="importAll">导入数据</button>
+      </div>
+    </div>
+
+    <!-- 客户管理 -->
+    <div id="dbCust" style="display:none">
+      <div class="card">
+        <div class="card-hd"><span class="dot grey"></span><h2>客户管理</h2>
+          <span class="note" id="custCount">共 0 个客户</span></div>
+        <div class="card-bd">
+          <input type="search" id="custSearch" placeholder="搜索客户名称 / 电话 / 地址 / 备注" />
+          <button class="btn primary block" data-act="newCustomer" style="margin-top:10px">＋ 新增客户</button>
+        </div>
+      </div>
+      <div class="card"><div class="card-bd" id="custList"></div></div>
     </div>
   </section>
 
@@ -455,7 +513,7 @@
   </button>
   <button data-tab="lib">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg>
-    <span>产品库</span>
+    <span>数据库</span>
   </button>
   <button data-tab="rec">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M8 7.5h7M8 11h5"/></svg>
@@ -675,7 +733,10 @@ function evalExpr(src){
 (function(){
   'use strict';
 
-  var K = { P:'bjdj.products.v1', R:'bjdj.records.v1', D:'bjdj.draft.v1', S:'bjdj.settings.v1' };
+  var K = { P:'bjdj.products.v1', R:'bjdj.records.v1', D:'bjdj.draft.v1', S:'bjdj.settings.v1',
+            C:'bjdj.customers.v1' };
+  /* 赠送/奖励类型（顺序即下拉顺序；老数据缺 cat 时按第一项处理） */
+  var GIFT_CATS = ['搭赠产品', '入库奖励', '地堆奖励', '宴席奖励', '开瓶奖励', '抽奖奖品'];
   var uid = function(){ return Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4); };
 
   function load(k, def){
@@ -683,6 +744,18 @@ function evalExpr(src){
     catch(e){ return def; }
   }
   function store(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){ toast('本机存储写入失败'); } }
+
+  /* 客户档案：{ id, name, phone, addr, note, createdAt } —— 老数据缺字段时补齐，避免读取崩 */
+  var customers = (function(){
+    var list = load(K.C, null);
+    if (!Array.isArray(list)) return [];
+    return list.filter(function(c){ return c && typeof c === 'object'; }).map(function(c){
+      return { id: c.id || uid(), name: String(c.name || ''), phone: String(c.phone || ''),
+               addr: String(c.addr || ''), note: String(c.note || ''), createdAt: c.createdAt || Date.now() };
+    });
+  })();
+  function saveCustomers(){ store(K.C, customers); }
+  function findCustomer(id){ for (var i = 0; i < customers.length; i++) if (customers[i].id === id) return customers[i]; return null; }
 
   var SEED = [
     { name:'五年',     spec:6, price:100,  degree:'', volume:'' },
@@ -760,7 +833,8 @@ function evalExpr(src){
   }
   function newRow(kind){
     return { rid: uid(), kind: kind, productId:'', name:'', spec:'', price:'', degree:'', volume:'',
-             qtyBox:'', qtyBottle:'' };   // 整箱数 + 零散瓶数
+             qtyBox:'', qtyBottle:'',   // 整箱数 + 零散瓶数
+             cat: kind === 'g' ? GIFT_CATS[0] : '' };   // 赠送行类型（搭赠/入库奖励…）
   }
   /* 从记录快照还原一行：新快照用 qtyBox/qtyBottle，老快照只有 qty（拿货=箱数，赠送=瓶数） */
   function rowFromSnapshot(x, kind){
@@ -773,11 +847,13 @@ function evalExpr(src){
     } else if (num(x.qty) > 0){
       if (kind === 'p') n.qtyBox = String(x.qty); else n.qtyBottle = String(x.qty);
     }
+    if (kind === 'g') n.cat = x.cat || GIFT_CATS[0];   // 老记录无类型 → 默认搭赠
     return n;
   }
   /* 老草稿/老记录只有 qty（拿货=箱数，赠送=瓶数）→ 迁移到 qtyBox/qtyBottle */
   function migrateRow(r, kind){
     if (!r || typeof r !== 'object') return r;
+    if (kind === 'g' && !r.cat) r.cat = GIFT_CATS[0];   // 老草稿无类型 → 默认搭赠
     if (r.qtyBox === undefined && r.qtyBottle === undefined){
       var q = num(r.qty);
       r.qtyBox = (kind === 'p' && q > 0) ? String(q) : '';
@@ -901,6 +977,7 @@ function evalExpr(src){
     saveDraft();
     var plan = currentPlan();
     renderTotals(plan); renderResult(plan); renderVerify(plan);
+    renderGiftCatSum();            // 改数量后分类小计要跟着变
   }
   function bumpQty(kind, rid, delta, target){
     var row = findRow(kind, rid);
@@ -934,13 +1011,26 @@ function evalExpr(src){
                '<button type="button" data-act="dec" data-t="' + target + '" data-kind="' + kind + '" data-rid="' + r.rid + '" aria-label="减少' + unit + '数">▼</button>' +
              '</div>';
     }
-    return '<div class="rowline" data-rid="' + r.rid + '">' +
-      '<button type="button" class="pick' + (r.name ? '' : ' empty') + '" data-act="pick" data-kind="' + kind + '" data-rid="' + r.rid + '">' +
+    var pickBtn = '<button type="button" class="pick' + (r.name ? '' : ' empty') + '" data-act="pick" data-kind="' + kind + '" data-rid="' + r.rid + '">' +
         '<span class="nm">' + (r.name ? esc(r.name) : '选择产品') + chips + '</span>' +
         '<span class="sub">' + esc(sub) + '</span>' +
-      '</button>' +
-      '<div class="qtygrp">' + cell('box', r.qtyBox, '箱') + cell('bottle', r.qtyBottle, '瓶') + '</div>' +
-      '<button type="button" class="del" data-act="delrow" data-kind="' + kind + '" data-rid="' + r.rid + '" aria-label="删除此行">✕</button>' +
+      '</button>';
+    var delBtn = '<button type="button" class="del" data-act="delrow" data-kind="' + kind + '" data-rid="' + r.rid + '" aria-label="删除此行">✕</button>';
+    var qtyGrp = '<div class="qtygrp">' + cell('box', r.qtyBox, '箱') + cell('bottle', r.qtyBottle, '瓶') + '</div>';
+    if (isP){
+      return '<div class="rowline" data-rid="' + r.rid + '">' + pickBtn + qtyGrp + delBtn + '</div>';
+    }
+    // 赠送行：上行 类型下拉 + 删除；下行 产品 + 箱/瓶。类型只进分类小计，不改金额口径。
+    return '<div class="rowline g" data-rid="' + r.rid + '">' +
+      '<div class="gift-hd">' +
+        '<span class="catlb">类型</span>' +
+        '<select class="catsel" data-cat="' + r.rid + '" aria-label="赠送/奖励类型">' +
+          GIFT_CATS.map(function(c){
+            return '<option value="' + esc(c) + '"' + ((r.cat || GIFT_CATS[0]) === c ? ' selected' : '') + '>' + esc(c) + '</option>';
+          }).join('') +
+        '</select>' + delBtn +
+      '</div>' +
+      '<div class="gift-body">' + pickBtn + qtyGrp + '</div>' +
     '</div>';
   }
 
@@ -974,10 +1064,10 @@ function evalExpr(src){
       if (it.volume) bits.push(esc(it.volume));
       var exactTxt = trimNum(it.exactBottom, 6);
       return '<div class="res">' +
-        '<div class="res-hd"><div style="flex:1;min-width:0">' +
+        '<div class="res-hd">' +
           '<div class="rn">' + esc(it.name) + '</div>' +
           '<div class="rs">' + (bits.length ? bits.join(' · ') : '—') + ' · 开票价 ' + money(it.price) + '/瓶</div>' +
-        '</div></div>' +
+        '</div>' +
         '<div class="res-price"><span class="lb">底价</span><b>' + bp(it.bottom, plan.precision) + '</b><span class="per">元/瓶</span>' +
           '<span class="tag">折扣 ' + pct(it.discount) + '</span></div>' +
         '<div class="kv">' +
@@ -986,7 +1076,6 @@ function evalExpr(src){
           '<div><i>到手合计</i><b>' + boxBottleText(it.qty, it.spec) + '</b></div>' +
           '<div><i>按底价金额</i><b>' + money(it.allocated) + '</b></div>' +
         '</div>' +
-        '<div class="exact">精确底价 ' + exactTxt + ' 元/瓶（保留 ' + plan.precision + ' 位显示）</div>' +
       '</div>';
     }).join('');
     box.innerHTML = html;
@@ -1054,6 +1143,12 @@ function evalExpr(src){
       toast('算式有误，请检查');
       return null;
     }
+    if (v < 0){
+      // 负数付款会让折扣率与底价都变成负数，必须拦住
+      exprResultEl('算式结果是负数（' + resText(v) + '），付款金额不能小于 0', false);
+      toast('算式结果不能是负数');
+      return null;
+    }
     var shown = resText(v);          // 103.6438356… → 103.644
     var exactTxt = trimNum(v, 6);    // 103.643836
     draft.customPay = true;
@@ -1069,6 +1164,27 @@ function evalExpr(src){
 
   /* 手机键盘上没有 × ÷ % ( )，用快捷键插到光标处。
      注意：快捷键按钮不能抢走输入框焦点，否则光标会丢——插完符号后光标跑到符号前面就是这个原因。 */
+  /* 键盘避让：算式输入框聚焦、或键盘高度变化时，把「客户付款金额」卡整体滚到
+     键盘上沿之上（卡底边与键盘顶部对齐），这样输入数字和点符号键时都看得见。 */
+  var __alignTimer = null;
+  function alignPayCard(){
+    var card = document.getElementById('payCard');
+    var el = document.getElementById('exprInput');
+    if (!card || !el || document.activeElement !== el) return;
+    var vv = window.visualViewport;
+    var vpH = vv && vv.height ? vv.height : window.innerHeight;
+    var vpTop = vv && typeof vv.offsetTop === 'number' ? vv.offsetTop : 0;
+    var r = card.getBoundingClientRect();
+    var bottomInView = r.bottom - vpTop;
+    var gap = 10;
+    // 只在卡片底边被键盘挡住时向上滚；已在可视区就不动，避免页面乱跳
+    if (bottomInView > vpH - gap) window.scrollBy(0, bottomInView - (vpH - gap));
+  }
+  function scheduleAlignPayCard(delay){
+    clearTimeout(__alignTimer);
+    __alignTimer = setTimeout(alignPayCard, delay == null ? 60 : delay);
+  }
+
   function insertExpr(txt){
     var el = document.getElementById('exprInput');
     if (!el) return;
@@ -1099,6 +1215,28 @@ function evalExpr(src){
     setTimeout(put, 0);
   }
 
+  /* 赠送金额按类型小计（口径与合计一致：有产品、数量>0、开票价>0） */
+  function giftCatTotals(){
+    var map = {};
+    draft.gifts.forEach(function(r){
+      if (!r.name) return;
+      var rq = rowQty(r, false);
+      if (!(rq.bottles > 0) || !(num(r.price) > 0)) return;
+      var cat = r.cat || GIFT_CATS[0];
+      map[cat] = (map[cat] || 0) + rq.bottles * num(r.price);
+    });
+    return GIFT_CATS.filter(function(c){ return map[c]; })
+      .map(function(c){ return { cat: c, value: round2(map[c]) }; });
+  }
+  function renderGiftCatSum(){
+    var el = document.getElementById('giftCatSum');
+    if (!el) return;
+    var list = giftCatTotals();
+    el.textContent = list.length
+      ? '分类小计：' + list.map(function(x){ return x.cat + ' ' + money(x.value); }).join(' · ')
+      : '';
+  }
+
   function renderCalc(){
     renderRows('p');
     renderRows('g');
@@ -1106,10 +1244,128 @@ function evalExpr(src){
     renderTotals(plan);
     renderResult(plan);
     renderVerify(plan);
+    renderGiftCatSum();
     return plan;
   }
 
   /* ---------------- 产品库 ---------------- */
+  /* ---------------- 客户管理 ---------------- */
+  function renderCust(){
+    var q = (document.getElementById('custSearch').value || '').trim().toLowerCase();
+    var list = customers.filter(function(c){
+      if (!q) return true;
+      return (c.name || '').toLowerCase().indexOf(q) >= 0 ||
+             (c.phone || '').toLowerCase().indexOf(q) >= 0 ||
+             (c.addr || '').toLowerCase().indexOf(q) >= 0 ||
+             (c.note || '').toLowerCase().indexOf(q) >= 0;
+    });
+    document.getElementById('custCount').textContent = '共 ' + customers.length + ' 个客户';
+    var box = document.getElementById('custList');
+    if (!customers.length){
+      box.innerHTML = '<div class="empty"><span class="em">👤</span>还没有客户档案，点上方「新增客户」录入<br>录入后算客户名时可直接搜索选择</div>';
+      return;
+    }
+    if (!list.length){
+      box.innerHTML = '<div class="empty">没有匹配「' + esc(q) + '」的客户</div>';
+      return;
+    }
+    box.innerHTML = list.map(function(c){
+      var meta = [];
+      if (c.phone) meta.push('📞 ' + esc(c.phone));
+      if (c.addr) meta.push('📍 ' + esc(c.addr));
+      if (c.note) meta.push(esc(c.note));
+      return '<div class="item">' +
+        '<div class="main"><div class="t1">' + esc(c.name) + '</div>' +
+        '<div class="t2">' + (meta.length ? meta.join(' · ') : '—') + '</div></div>' +
+        '<div class="acts">' +
+          '<button class="btn xs ghost" data-act="editCustomer" data-id="' + c.id + '">编辑</button>' +
+          '<button class="btn xs danger" data-act="delCustomer" data-id="' + c.id + '">删除</button>' +
+        '</div></div>';
+    }).join('');
+  }
+
+  /* 新增/编辑客户。改完不重建列表页以外的任何东西；返回保存后的客户对象 */
+  function customerSheet(id, onSaved){
+    var c = id ? findCustomer(id) : null;
+    var v = c || { name:'', phone:'', addr:'', note:'' };
+    sheet(c ? '编辑客户' : '新增客户',
+      '<div class="field"><label>客户名称 *</label><input id="c_name" type="text" value="' + esc(v.name) + '" placeholder="如：张老板 / 某某烟酒店" /></div>' +
+      '<div class="field"><label>联系电话</label><input id="c_phone" type="tel" inputmode="tel" value="' + esc(v.phone) + '" placeholder="如：13800000000" /></div>' +
+      '<div class="field"><label>地址</label><input id="c_addr" type="text" value="' + esc(v.addr) + '" placeholder="如：XX路XX号" /></div>' +
+      '<div class="field"><label>备注</label><input id="c_note" type="text" value="' + esc(v.note) + '" placeholder="如：月结 / 主推酱香" /></div>' +
+      '<p class="hint">客户档案只存本机，用于计算时快速选择与按客户查记录。</p>',
+      '<button class="btn ghost" data-act="closelayer">取消</button><button class="btn primary" id="c_save">保存</button>',
+      function(){
+        document.getElementById('c_save').addEventListener('click', function(){
+          var name = (document.getElementById('c_name').value || '').trim();
+          if (!name) return toast('请填写客户名称');
+          // 同名客户提醒（允许保存，但提示避免重复录入）
+          var dup = customers.filter(function(x){ return x.name === name && x.id !== (c && c.id); })[0];
+          var obj = {
+            id: (c && c.id) || uid(), name: name,
+            phone: (document.getElementById('c_phone').value || '').trim(),
+            addr: (document.getElementById('c_addr').value || '').trim(),
+            note: (document.getElementById('c_note').value || '').trim(),
+            createdAt: (c && c.createdAt) || Date.now()
+          };
+          if (c){ for (var k in obj) c[k] = obj[k]; }
+          else { customers.unshift(obj); }
+          saveCustomers();
+          closeLayer();
+          renderCust();
+          toast(dup ? '已保存（已存在同名客户）' : '客户已保存');
+          if (onSaved) onSaved(obj);
+        });
+      });
+  }
+
+  /* 计算页：搜索并选择客户，填入客户名称 */
+  function customerPicker(){
+    sheet('选择客户',
+      '<div class="field" style="margin-bottom:10px"><input id="cpSearch" type="search" placeholder="搜索客户名称 / 电话 / 地址 / 备注" /></div>' +
+      '<div id="cpList" style="max-height:50vh;overflow:auto"></div>',
+      '<button class="btn ghost" data-act="closelayer">关闭</button><button class="btn primary" id="cpNew">＋ 新增客户</button>',
+      function(){
+        var box = document.getElementById('cpList');
+        function draw(){
+          var q = (document.getElementById('cpSearch').value || '').trim().toLowerCase();
+          var list = customers.filter(function(c){
+            if (!q) return true;
+            return (c.name || '').toLowerCase().indexOf(q) >= 0 ||
+                   (c.phone || '').toLowerCase().indexOf(q) >= 0 ||
+                   (c.addr || '').toLowerCase().indexOf(q) >= 0 ||
+                   (c.note || '').toLowerCase().indexOf(q) >= 0;
+          });
+          if (!customers.length){
+            box.innerHTML = '<div class="empty">还没有客户档案<br>点下方「＋ 新增客户」先建一个</div>';
+            return;
+          }
+          if (!list.length){ box.innerHTML = '<div class="empty">没有匹配的客户</div>'; return; }
+          box.innerHTML = list.map(function(c){
+            var meta = [c.phone, c.addr, c.note].filter(Boolean).join(' · ') || '—';
+            return '<div class="pitem" data-act="chooseCustomer" data-id="' + c.id + '">' +
+              '<div class="main"><div class="t1">' + esc(c.name) + '</div><div class="t2">' + esc(meta) + '</div></div>' +
+              '<span class="pr">选</span></div>';
+          }).join('');
+        }
+        draw();
+        document.getElementById('cpSearch').addEventListener('input', draw);
+        document.getElementById('cpNew').addEventListener('click', function(){
+          closeLayer();
+          customerSheet(null, function(obj){ applyCustomerName(obj.name); });
+        });
+      });
+  }
+  /* 把客户名填进计算页（不重建行，避免输入焦点跳动） */
+  function applyCustomerName(name){
+    var el = document.getElementById('custName');
+    if (el) el.value = name;
+    draft.customer = name;
+    saveDraft();
+    closeLayer();
+    toast('已填入客户：' + name);
+  }
+
   function renderLib(){
     var q = (document.getElementById('libSearch').value || '').trim().toLowerCase();
     var list = products.filter(function(p){
@@ -1286,7 +1542,8 @@ function evalExpr(src){
       }),
       gifts: draft.gifts.filter(function(r){ return r.name && rowQty(r, false).bottles > 0; }).map(function(r){
         return { productId:r.productId, name:r.name, spec:num(r.spec), price:num(r.price),
-                 qtyBox:num(r.qtyBox), qtyBottle:num(r.qtyBottle), degree:r.degree, volume:r.volume };
+                 qtyBox:num(r.qtyBox), qtyBottle:num(r.qtyBottle), degree:r.degree, volume:r.volume,
+                 cat: r.cat || GIFT_CATS[0] };
       }),
       customPay: draft.customPay, pay: draft.pay, expr: draft.expr || ''
     };
@@ -1539,11 +1796,11 @@ function evalExpr(src){
     }
     y = hh;
 
-    // 三个关键指标
+    // 关键指标：与「产品底价」栏一致 —— 客户付款（恒显示）、让利金额（仅手动付款时）、货品开票总值（恒显示）
     y += 26;
-    // 让利金额 = 拿货合计 - 客户付款；只有手动指定付款时才显示这一格（与界面一致）
     var kpis = [['客户付款金额', moneyPrec(plan.payment), BRAND]];
     if (plan.overridden) kpis.push(['让利金额', moneyPrec(plan.purchaseTotal - plan.payment), '#a9761b']);
+    kpis.push(['货品开票总值', moneyPrec(plan.invoiceTotal), INK]);
     var kw = (CW - 10 * (kpis.length - 1)) / kpis.length, kh = 98;
     kpis.forEach(function(k, i){
       var x = pad + i * (kw + 10);
@@ -1554,8 +1811,7 @@ function evalExpr(src){
     y += kh + 18;
 
     text('拿货合计 ' + moneyPrec(plan.purchaseTotal), pad, y + 20, 20, 400, INK2);
-    text('赠送货值 ' + moneyPrec(plan.giftValue), pad + CW / 2, y + 20, 20, 400, INK2, 'center');
-    text('开票总值 ' + moneyPrec(plan.invoiceTotal), W - pad, y + 20, 20, 400, INK2, 'right');
+    text('赠送货值 ' + moneyPrec(plan.giftValue), W - pad, y + 20, 20, 400, INK2, 'right');
     y += 42;
 
     // 明细表
@@ -1772,11 +2028,12 @@ function evalExpr(src){
     if (plan.items.length > max) out += ' 等' + plan.items.length + '种产品';
     return out;
   }
+  /* 货品构成：五年(10箱3瓶+赠6瓶)、十年(5箱) —— 零散瓶也要带上，别只写整箱 */
   function goodsDesc(plan){
     return plan.items.map(function(it){
       var parts = [];
-      if (it.pBoxes) parts.push(it.pBoxes + '箱');
-      if (it.gBottles) parts.push('赠' + it.gBottles + '瓶');
+      if (it.pBottles) parts.push(boxBottleText(it.pBottles, it.spec));
+      if (it.gBottles) parts.push('赠' + boxBottleText(it.gBottles, it.spec));
       return it.name + (parts.length ? '(' + parts.join('+') + ')' : '');
     }).join('、');
   }
@@ -1838,7 +2095,7 @@ function evalExpr(src){
   /* ---------------- Tab ---------------- */
   var TITLES = {
     calc: ['底价计算', '终端拿货 · 赠送 · 产品底价 · 自动验算'],
-    lib:  ['产品库', '维护产品名称 / 规格 / 开票价 / 度数 / 容量'],
+    lib:  ['数据库', '产品库 / 客户管理'],
     rec:  ['计算记录', '保存、重命名、载入你的每一次测算']
   };
   function switchTab(tab){
@@ -1849,10 +2106,25 @@ function evalExpr(src){
     document.getElementById('pageTitle').textContent = TITLES[tab][0];
     document.getElementById('pageSub').textContent = TITLES[tab][1];
     window.scrollTo({ top:0, behavior:'instant' in window ? 'instant' : 'auto' });
-    if (tab === 'lib') renderLib();
+    if (tab === 'lib'){ renderLib(); renderCust(); }
     if (tab === 'rec') renderRecords();
     if (tab === 'calc') renderCalc();
   }
+  /* 数据库页：产品库 / 客户管理 下拉切换（只切显示，不重建数据） */
+  function initDbView(){
+    var sel = document.getElementById('dbViewSel');
+    if (!sel) return;
+    function apply(){
+      var v = sel.value;
+      document.getElementById('dbProd').style.display = (v === 'prod') ? '' : 'none';
+      document.getElementById('dbCust').style.display = (v === 'cust') ? '' : 'none';
+      if (v === 'cust') renderCust(); else renderLib();
+      window.scrollTo({ top:0, behavior:'instant' in window ? 'instant' : 'auto' });
+    }
+    sel.addEventListener('change', apply);
+    apply();
+  }
+
   function updateTabBadge(){
     var b = document.querySelector('.tabbar button[data-tab="rec"]');
     var old = b.querySelector('.badge'); if (old) old.remove();
@@ -1905,6 +2177,17 @@ function evalExpr(src){
     if (t.closest && (t.closest('[data-k]') || t.closest('#exprWrap'))) return;
     el.blur();
   }, { passive:true });
+
+  /* 赠送类型切换：只写草稿 + 刷新分类小计，绝不重建行（避免输入焦点跳动） */
+  document.addEventListener('change', function(e){
+    var sel = e.target.closest && e.target.closest('.catsel');
+    if (!sel) return;
+    var row = findRow('g', sel.getAttribute('data-cat'));
+    if (!row) return;
+    row.cat = sel.value;
+    saveDraft();
+    renderGiftCatSum();
+  });
 
   document.addEventListener('click', function(e){
     var kbtn = e.target.closest('[data-k]');
@@ -1975,6 +2258,24 @@ function evalExpr(src){
         });
         return;
       }
+      if (act === 'newCustomer'){ customerSheet(null); return; }
+      if (act === 'editCustomer'){ customerSheet(el.getAttribute('data-id')); return; }
+      if (act === 'delCustomer'){
+        var cdel = findCustomer(el.getAttribute('data-id'));
+        if (!cdel) return;
+        confirmDlg('删除客户', '确定删除「' + cdel.name + '」？已保存的记录不受影响。', '删除').then(function(ok){
+          if (!ok) return;
+          customers = customers.filter(function(x){ return x.id !== cdel.id; });
+          saveCustomers(); renderCust(); toast('已删除');
+        });
+        return;
+      }
+      if (act === 'chooseCustomer'){
+        var csel = findCustomer(el.getAttribute('data-id'));
+        if (csel) applyCustomerName(csel.name);
+        return;
+      }
+      if (act === 'pickcustomer'){ customerPicker(); return; }
       if (act === 'newProd'){ productSheet(null); return; }
       if (act === 'editProd'){ productSheet(el.getAttribute('data-id')); return; }
       if (act === 'bulkProd'){ bulkSheet(); return; }
@@ -2061,6 +2362,7 @@ function evalExpr(src){
     if (t.id === 'custName'){ draft.customer = t.value; saveDraft(); return; }
     if (t.id === 'noteInput'){ draft.note = t.value; saveDraft(); return; }
     if (t.id === 'libSearch'){ renderLib(); return; }
+    if (t.id === 'custSearch'){ renderCust(); return; }
     if (t.id === 'recSearch'){ renderRecords(); return; }
   });
 
@@ -2079,6 +2381,19 @@ function evalExpr(src){
   document.getElementById('exprInput').addEventListener('keydown', function(e){
     if (e.key === 'Enter'){ e.preventDefault(); runExpr(); }
   });
+  /* 算式输入框聚焦 → 键盘弹起后把付款卡滚到键盘上沿之上；失焦则取消 */
+  (function(){
+    var el = document.getElementById('exprInput');
+    if (!el) return;
+    el.addEventListener('focus', function(){ scheduleAlignPayCard(320); });
+    el.addEventListener('blur', function(){ clearTimeout(__alignTimer); });
+    if (window.visualViewport && window.visualViewport.addEventListener){
+      window.visualViewport.addEventListener('resize', function(){
+        var e2 = document.getElementById('exprInput');
+        if (e2 && document.activeElement === e2) scheduleAlignPayCard(80);
+      });
+    }
+  })();
 
   function syncPrecSeg(){
     document.querySelectorAll('#precSeg button').forEach(function(b){
@@ -2097,6 +2412,8 @@ function evalExpr(src){
     syncPrecSeg();
     renderCalc();
     renderLib();
+    renderCust();
+    initDbView();       // 数据库页：产品库 / 客户管理 下拉
     renderRecords();
     updateTabBadge();
     // 首次进入自动弹引导；但如果用户手快已经点开了别的弹层，就不打扰他
@@ -2106,6 +2423,8 @@ function evalExpr(src){
 
   // 暴露给测试
   window.__bjdj = { computePlan:computePlan, num:num, round2:round2, evalExpr:evalExpr, resText:resText,
+    migrateRow:migrateRow, rowFromSnapshot:rowFromSnapshot, GIFT_CATS:GIFT_CATS,
+    alignPayCard:alignPayCard,
                     moneyPrec:moneyPrec, runExpr:runExpr, products:function(){ return products; } };
 })();
 </script>
